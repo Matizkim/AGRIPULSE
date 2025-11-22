@@ -8,9 +8,9 @@ import { requireAuth, mapReqAuthToReqUser } from "../utils/clerkVerify.js";
 const router = express.Router();
 
 // Create a match (farmer responds to demand)
-//router.post("/", requireAuth(), mapReqAuthToReqUser, async (req, res) => {
-import { fakeAuth } from "../utils/fakeAuth.js";
-router.post("/", fakeAuth, async (req, res) => {
+router.post("/", requireAuth(), mapReqAuthToReqUser, async (req, res) => {
+//import { fakeAuth } from "../utils/fakeAuth.js";
+// router.post("/", fakeAuth, async (req, res) => {
 
   try {
     const { listingId, demandId, priceAgreed } = req.body;

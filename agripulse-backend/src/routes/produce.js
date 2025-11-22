@@ -6,9 +6,9 @@ import { requireAuth, mapReqAuthToReqUser } from "../utils/clerkVerify.js";
 const router = express.Router();
 
 // Create listing (farmer)
-//router.post("/", requireAuth(), mapReqAuthToReqUser, async (req, res) => {
- import { fakeAuth } from "../utils/fakeAuth.js";
-router.post("/", fakeAuth, async (req, res) => {
+router.post("/", requireAuth(), mapReqAuthToReqUser, async (req, res) => {
+//import { fakeAuth } from "../utils/fakeAuth.js";
+//router.post("/", fakeAuth, async (req, res) => {
 
   try {
     const { crop, quantityKg, harvestDate, expectedPrice, location } = req.body;

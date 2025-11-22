@@ -6,9 +6,9 @@ import { requireAuth, mapReqAuthToReqUser } from "../utils/clerkVerify.js";
 const router = express.Router();
 
 // Create market demand
-//router.post("/", requireAuth(), mapReqAuthToReqUser, async (req, res) => {
-  import { fakeAuth } from "../utils/fakeAuth.js";
-router.post("/", fakeAuth, async (req, res) => {
+router.post("/", requireAuth(), mapReqAuthToReqUser, async (req, res) => {
+  //import { fakeAuth } from "../utils/fakeAuth.js";
+//router.post("/", fakeAuth, async (req, res) => {
 
   ///LOGGING -- TBR
 // In your POST /api/demand route
