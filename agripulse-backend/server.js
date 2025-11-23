@@ -31,7 +31,10 @@ const io = new IOServer(server, {
 const PORT = process.env.PORT || 5000;
 
 // Global middleware
-app.use(helmet());
+// Configure Helmet to work with CORS
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
 
 // CORS configuration - supports multiple origins in production
 const corsOptions = {
@@ -39,19 +42,47 @@ const corsOptions = {
     // Allow requests with no origin (mobile apps, Postman, etc.)
     if (!origin) return callback(null, true);
     
+    // Get allowed origins from environment or use defaults
     const allowedOrigins = process.env.CORS_ORIGIN 
-      ? process.env.CORS_ORIGIN.split(',') 
-      : ['http://localhost:3000', 'http://localhost:5173']; // Default dev origins
+      ? process.env.CORS_ORIGIN.split(',').map(o => o.trim())
+      : process.env.NODE_ENV === 'production'
+        ? [] // In production, require CORS_ORIGIN to be set
+        : ['http://localhost:3000', 'http://localhost:5173']; // Default dev origins
     
-    if (allowedOrigins.indexOf(origin) !== -1 || process.env.NODE_ENV !== 'production') {
+    // Log for debugging
+    if (process.env.NODE_ENV === 'production') {
+      console.log('🌐 CORS Check - Origin:', origin);
+      console.log('🌐 CORS Check - Allowed Origins:', allowedOrigins);
+    }
+    
+    // In development, allow all origins
+    if (process.env.NODE_ENV !== 'production') {
+      return callback(null, true);
+    }
+    
+    // In production, check against allowed origins
+    if (allowedOrigins.length === 0) {
+      console.warn('⚠️  CORS_ORIGIN not set in production! Allowing all origins (not recommended)');
+      return callback(null, true); // Allow all if not configured (for quick fix)
+    }
+    
+    if (allowedOrigins.includes(origin) || allowedOrigins.includes('*')) {
       callback(null, true);
     } else {
+      console.error('❌ CORS blocked origin:', origin);
       callback(new Error('Not allowed by CORS'));
     }
   },
-  credentials: true
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  exposedHeaders: ['Content-Range', 'X-Content-Range']
 };
+
 app.use(cors(corsOptions));
+
+// Handle preflight requests explicitly
+app.options('*', cors(corsOptions));
 
 app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true }));
@@ -111,6 +142,7 @@ app.set("io", io);
   console.log("  ✓ PORT:", PORT);
   console.log("  ✓ NODE_ENV:", process.env.NODE_ENV || "development");
   console.log("  ✓ MONGODB_URI:", process.env.MONGODB_URI ? "Set ✓" : "Missing ❌");
+  console.log("  ✓ CORS_ORIGIN:", process.env.CORS_ORIGIN || "Not set (allowing all in dev)");
   console.log("  ✓ AT_USERNAME:", process.env.AT_USERNAME || "Not set");
   console.log("  ✓ AT_API_KEY:", process.env.AT_API_KEY ? "Set ✓" : "Not set");
   console.log("");
