@@ -100,7 +100,24 @@ app.set("io", io);
 
 // Connect DB and start server
 (async () => {
+  // Validate environment variables before starting
+  if (!process.env.MONGODB_URI) {
+    console.error("❌ MONGODB_URI environment variable is missing!");
+    console.error("Please set it in Render dashboard → Environment → Add Environment Variable");
+    process.exit(1);
+  }
+
+  console.log("🔍 Environment Check:");
+  console.log("  ✓ PORT:", PORT);
+  console.log("  ✓ NODE_ENV:", process.env.NODE_ENV || "development");
+  console.log("  ✓ MONGODB_URI:", process.env.MONGODB_URI ? "Set ✓" : "Missing ❌");
+  console.log("  ✓ AT_USERNAME:", process.env.AT_USERNAME || "Not set");
+  console.log("  ✓ AT_API_KEY:", process.env.AT_API_KEY ? "Set ✓" : "Not set");
+  console.log("");
+
   await connectDB(process.env.MONGODB_URI);
-  server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  console.log("MONGO DB URI:", process.env.MONGODB_URI);
+  server.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`🌐 Health check: http://localhost:${PORT}/health`);
+  });
 })();
