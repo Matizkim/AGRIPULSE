@@ -22,6 +22,18 @@ router.post("/", requireAuth(), mapReqAuthToReqUser, async (req, res) => {
       location,
     });
 
+    // Emit Socket.IO event for real-time updates
+    const io = req.app.get("io");
+    if (io) {
+      // Emit to all clients
+      io.emit("newListing", listing);
+      // Also emit to location-specific room (e.g., "Nairobi:tomatoes")
+      if (location?.county && crop) {
+        const room = `${location.county}:${crop}`.toLowerCase();
+        io.to(room).emit("newListing", listing);
+      }
+    }
+
     res.status(201).json(listing);
   } catch (err) {
     console.error(err);

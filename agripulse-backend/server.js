@@ -30,11 +30,6 @@ const io = new IOServer(server, {
 
 const PORT = process.env.PORT || 5000;
 
-
-//FOR TESTING PURPOSES ONLY - TBR
-app.use(express.json());  // This parses JSON bodies
-app.use(express.urlencoded({ extended: true }));  // This parses URL-encoded bodies
-////END 
 // Global middleware
 app.use(helmet());
 app.use(cors());
@@ -42,7 +37,12 @@ app.use(express.json({ limit: "5mb" }));
 app.use(express.urlencoded({ extended: true }));
 
 // Clerk middleware must come BEFORE routes
-//app.use(clerkMiddlewareAdapter); ///TODO --- return after verifying backend
+// NOTE: Currently disabled for testing/development. 
+// To enable authentication:
+// 1. Ensure CLERK_SECRET_KEY is set in .env
+// 2. Uncomment the line below
+// 3. All routes using requireAuth() will then be protected
+//app.use(clerkMiddlewareAdapter);
 
 // Basic rate limit
 app.use(rateLimit({ windowMs: 60 * 1000, max: 120 }));
@@ -82,4 +82,5 @@ app.set("io", io);
 (async () => {
   await connectDB(process.env.MONGODB_URI);
   server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  console.log("MONGO DB URI:", process.env.MONGODB_URI);
 })();

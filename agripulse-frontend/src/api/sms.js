@@ -1,6 +1,6 @@
 import API from "./axiosInstance";
 
-export const fetchMatches = async () => {
-  const res = await API.get("/match");
+export const sendSMS = async (payload) => {
+  const res = await API.post("/sms/send", payload);
   return res.data;
 };
