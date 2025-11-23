@@ -1,0 +1,28 @@
+# Render Blueprint Configuration
+# This file allows you to configure your Render services via code
+# Documentation: https://render.com/docs/blueprint-spec
+
+services:
+  - type: web
+    name: agripulse-backend
+    env: node
+    region: frankfurt  # Change to your preferred region
+    plan: free  # free, starter, standard, pro
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGODB_URI
+        sync: false  # Set this manually in Render dashboard
+      - key: CLERK_SECRET_KEY
+        sync: false  # Set this manually in Render dashboard
+      - key: AT_USERNAME
+        value: sandbox
+      - key: AT_API_KEY
+        sync: false  # Set this manually in Render dashboard
+      - key: AT_SENDER_NAME
+        value: AgriPulse
+
