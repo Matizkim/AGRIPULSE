@@ -1,7 +1,9 @@
 # 🌾 AgriPulse - Agricultural Marketplace Platform
 
 **Version 0.7**
-
+APPLICATION LINK: https://agripulse-lilac.vercel.app/
+BACKEND LINK: https://agripulse-backend-kbit.onrender.com
+FRONTEND LINK: agripulse-lzxo7b2v0-martin-kinyuas-projects.vercel.app
 AgriPulse is a modern agricultural marketplace platform that connects farmers, buyers, and drivers in Kenya. Built with React, Node.js, and MongoDB, it enables real-time matching of agricultural produce with market demands, facilitating seamless transactions and logistics coordination.
 
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/Matizkim/AGRIPULSE)
@@ -249,4 +251,5 @@ For support, email support@agripulse.com or open an issue in the repository.
 ---
 
 **Made with ❤️ in Kenya**
+
 
