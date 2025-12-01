@@ -1,40 +1,11 @@
 # GitHub Setup Guide - AgriPulse
+
 
-This guide will help you push your AgriPulse code to GitHub.
-
-## Prerequisites
-
-- Git installed on your computer
-- GitHub account
-- Your repository URL: https://github.com/Matizkim/AGRIPULSE
-
-## Step-by-Step Instructions
-
-### Step 1: Initialize Git (if not already done)
-
-Open your terminal/command prompt in the project root directory (`AGRIPULSE`).
-
-```bash
-# Check if git is already initialized
-git status
-
-# If not initialized, run:
-git init
-```
+### Step 1: Initialize Git (if not already done)
 
 ### Step 2: Create/Update .gitignore
 
 Ensure you have a `.gitignore` file in the root directory. It should include:
-
-```
-# Dependencies
-node_modules/
-package-lock.json
-
-# Environment variables
-.env
-.env.local
-.env.*.local
 
 # Build outputs
 dist/
@@ -62,11 +33,9 @@ Thumbs.db
 ### Step 3: Add Remote Repository
 
 ```bash
-# Add your GitHub repository as remote origin
-git remote add origin https://github.com/Matizkim/AGRIPULSE.git
+# Add your GitHub repository as remote origin
 
-# If remote already exists, update it:
-git remote set-url origin https://github.com/Matizkim/AGRIPULSE.git
+# If remote already exists, update it:
 
 # Verify remote is set correctly
 git remote -v
@@ -77,19 +46,13 @@ git remote -v
 ```bash
 # Add all files to staging
 git add .
-
-# Or add specific directories
-git add agripulse-backend/
-git add agripulse-frontend/
-git add README.md
-git add .gitignore
+
 ```
 
 ### Step 5: Commit Changes
 
 ```bash
-# Create a commit with a descriptive message
-git commit -m "Version 0.7: Complete AgriPulse platform with enhanced UI and features"
+# Create a commit with a descriptive message
 ```
 
 ### Step 6: Push to GitHub
@@ -118,7 +81,7 @@ git push -u origin main
 
 ### Step 7: Verify Upload
 
-1. Go to https://github.com/Matizkim/AGRIPULSE
+1. Go to your github repository
 2. Verify all files are uploaded correctly
 3. Check that README files are displaying properly
 
@@ -140,7 +103,7 @@ ssh-keygen -t ed25519 -C "your_email@example.com"
 
 # Add SSH key to GitHub (Settings → SSH and GPG keys)
 # Then change remote URL:
-git remote set-url origin git@github.com:Matizkim/AGRIPULSE.git
+git remote set-url origin git@github.com:your repo
 ```
 
 ### Large Files Issue
@@ -212,14 +175,7 @@ git checkout main
 git merge feature/new-feature
 git push origin main
 ```
-
-## Best Practices
-
-1. **Commit Often**: Make small, frequent commits
-2. **Write Good Commit Messages**: Be descriptive
-3. **Don't Commit Secrets**: Never commit `.env` files
-4. **Use .gitignore**: Exclude unnecessary files
-5. **Pull Before Push**: Always pull latest changes first
+
 
 ## Quick Reference Commands
 

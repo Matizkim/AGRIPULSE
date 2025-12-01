@@ -262,3 +262,4 @@ For support, email support@agripulse.com or open an issue in the repository.
 
 **Made with ❤️ in Kenya**
 
+
