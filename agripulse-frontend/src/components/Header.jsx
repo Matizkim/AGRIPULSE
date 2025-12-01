@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import {
   SignInButton,
@@ -14,10 +14,33 @@ import {
   ClipboardDocumentListIcon,
   CheckBadgeIcon,
   ChatBubbleLeftRightIcon,
+  TruckIcon,
+  UserIcon,
+  ShieldCheckIcon,
 } from "@heroicons/react/24/outline";
+import { getCurrentUser } from "../api/users";
+import FeaturesMenu from "./FeaturesMenu";
 
 export default function Header() {
   const { isSignedIn, user } = useUser();
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [userRoles, setUserRoles] = useState([]);
+
+  useEffect(() => {
+    if (isSignedIn) {
+      checkUserStatus();
+    }
+  }, [isSignedIn]);
+
+  const checkUserStatus = async () => {
+    try {
+      const currentUser = await getCurrentUser();
+      setIsAdmin(currentUser.roles?.includes("admin") || false);
+      setUserRoles(currentUser.roles || []);
+    } catch (err) {
+      console.error("Error checking user status:", err);
+    }
+  };
 
   return (
     <header className="bg-white/80 backdrop-blur-md shadow-lg border-b border-green-100 sticky top-0 z-50">
@@ -83,7 +106,7 @@ export default function Header() {
               <span>Matches</span>
             </NavLink>
             <NavLink
-              to="/sms"
+              to="/messages"
               className={({ isActive }) =>
                 `flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
                   isActive
@@ -93,12 +116,100 @@ export default function Header() {
               }
             >
               <ChatBubbleLeftRightIcon className="w-4 h-4" />
-              <span>SMS</span>
+              <span>Messages</span>
             </NavLink>
+            <NavLink
+              to="/transport"
+              className={({ isActive }) =>
+                `flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  isActive
+                    ? "bg-green-100 text-green-700 shadow-sm"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                }`
+              }
+            >
+              <TruckIcon className="w-4 h-4" />
+              <span>Transport</span>
+            </NavLink>
+            <NavLink
+              to="/profile"
+              className={({ isActive }) =>
+                `flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                  isActive
+                    ? "bg-green-100 text-green-700 shadow-sm"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                }`
+              }
+            >
+              <UserIcon className="w-4 h-4" />
+              <span>Profile</span>
+            </NavLink>
+            {userRoles.includes("farmer") && (
+              <NavLink
+                to="/my-produce"
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                    isActive
+                      ? "bg-green-100 text-green-700 shadow-sm"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  }`
+                }
+              >
+                <ShoppingBagIcon className="w-4 h-4" />
+                <span>My Produce</span>
+              </NavLink>
+            )}
+            {userRoles.includes("buyer") && (
+              <NavLink
+                to="/my-demands"
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                    isActive
+                      ? "bg-green-100 text-green-700 shadow-sm"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  }`
+                }
+              >
+                <ClipboardDocumentListIcon className="w-4 h-4" />
+                <span>My Demands</span>
+              </NavLink>
+            )}
+            {userRoles.includes("driver") && (
+              <NavLink
+                to="/my-transport"
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                    isActive
+                      ? "bg-green-100 text-green-700 shadow-sm"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  }`
+                }
+              >
+                <TruckIcon className="w-4 h-4" />
+                <span>My Transport</span>
+              </NavLink>
+            )}
+            {isAdmin && (
+              <NavLink
+                to="/admin"
+                className={({ isActive }) =>
+                  `flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                    isActive
+                      ? "bg-purple-100 text-purple-700 shadow-sm"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                  }`
+                }
+              >
+                <ShieldCheckIcon className="w-4 h-4" />
+                <span>Admin</span>
+              </NavLink>
+            )}
           </nav>
         </div>
 
         <div className="flex items-center gap-3">
+          <FeaturesMenu userRoles={userRoles} isAdmin={isAdmin} />
+          
           <SignedOut>
             <SignInButton>
               <button className="px-4 py-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-medium shadow-md hover:shadow-lg hover:from-green-700 hover:to-emerald-700 transition-all">

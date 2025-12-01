@@ -78,3 +78,7 @@ coverage/
 
 # ML Worker outputs
 ml_prediction_sample.json
+
+# Documentation files (keep only main README.md)
+*.md
+!README.md

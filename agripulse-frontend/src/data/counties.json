@@ -1,0 +1,131 @@
+{
+  "counties": [
+    {
+      "county": "Mombasa",
+      "subcounties": [
+        {"name": "Changamwe", "towns": ["Changamwe", "Port Reitz"]},
+        {"name": "Jomvu", "towns": ["Jomvu"]},
+        {"name": "Kisauni", "towns": ["Bamburi", "Mshomoroni"]},
+        {"name": "Nyali", "towns": ["Nyali"]},
+        {"name": "Likoni", "towns": ["Likoni"]},
+        {"name": "Mvita", "towns": ["Mombasa CBD"]}
+      ]
+    },
+    {
+      "county": "Nairobi",
+      "subcounties": [
+        {"name": "Westlands", "towns": ["Westlands"]},
+        {"name": "Lang'ata", "towns": ["Lang'ata"]},
+        {"name": "Embakasi East", "towns": ["Utawala"]},
+        {"name": "Embakasi West", "towns": ["Umoja"]},
+        {"name": "Embakasi Central", "towns": ["Kayole"]},
+        {"name": "Embakasi North", "towns": ["Kariobangi"]},
+        {"name": "Embakasi South", "towns": ["Pipeline"]},
+        {"name": "Kasarani", "towns": ["Kasarani"]},
+        {"name": "Dagoretti North", "towns": ["Kileleshwa"]},
+        {"name": "Dagoretti South", "towns": ["Riruta"]},
+        {"name": "Makadara", "towns": ["Makadara"]},
+        {"name": "Kamukunji", "towns": ["Shauri Moyo"]},
+        {"name": "Starehe", "towns": ["Nairobi CBD"]},
+        {"name": "Mathare", "towns": ["Mathare"]}
+      ]
+    },
+    {
+      "county": "Kiambu",
+      "subcounties": [
+        {"name": "Kiambu", "towns": ["Kiambu"]},
+        {"name": "Ruiru", "towns": ["Ruiru"]},
+        {"name": "Thika", "towns": ["Thika"]},
+        {"name": "Limuru", "towns": ["Limuru"]},
+        {"name": "Gatundu North", "towns": ["Gatukuyu"]},
+        {"name": "Gatundu South", "towns": ["Gatundu"]},
+        {"name": "Lari", "towns": ["Lari"]},
+        {"name": "Githunguri", "towns": ["Githunguri"]}
+      ]
+    },
+    {
+      "county": "Nakuru",
+      "subcounties": [
+        {"name": "Nakuru Town East", "towns": ["Nakuru CBD"]},
+        {"name": "Nakuru Town West", "towns": ["Kaptembwa"]},
+        {"name": "Naivasha", "towns": ["Naivasha"]},
+        {"name": "Gilgil", "towns": ["Gilgil"]},
+        {"name": "Molo", "towns": ["Molo"]},
+        {"name": "Njoro", "towns": ["Njoro"]},
+        {"name": "Rongai", "towns": ["Rongai"]}
+      ]
+    },
+    {
+      "county": "Kisumu",
+      "subcounties": [
+        {"name": "Kisumu Central", "towns": ["Kisumu"]},
+        {"name": "Kisumu East", "towns": ["Manyatta"]},
+        {"name": "Kisumu West", "towns": ["Maseno"]},
+        {"name": "Nyando", "towns": ["Ahero"]},
+        {"name": "Muhoroni", "towns": ["Muhoroni"]},
+        {"name": "Nyakach", "towns": ["Katito"]}
+      ]
+    },
+    {
+      "county": "Uasin Gishu",
+      "subcounties": [
+        {"name": "Turbo", "towns": ["Turbo"]},
+        {"name": "Kesses", "towns": ["Kesses"]},
+        {"name": "Ainabkoi", "towns": ["Eldoret"]},
+        {"name": "Moiben", "towns": ["Moiben"]},
+        {"name": "Kapseret", "towns": ["Kapseret"]}
+      ]
+    },
+    {
+      "county": "Meru",
+      "subcounties": [
+        {"name": "Imenti North", "towns": ["Meru Town"]},
+        {"name": "Imenti South", "towns": ["Nkubu"]},
+        {"name": "Imenti Central", "towns": ["Kanyakine"]},
+        {"name": "Tigania East", "towns": ["Mitunguu"]},
+        {"name": "Tigania West", "towns": ["Mikinduri"]},
+        {"name": "Buuri", "towns": ["Timau"]},
+        {"name": "Igembe North", "towns": ["Laare"]},
+        {"name": "Igembe South", "towns": ["Maua"]}
+      ]
+    },
+    {
+      "county": "Machakos",
+      "subcounties": [
+        {"name": "Machakos", "towns": ["Machakos"]},
+        {"name": "Mavoko", "towns": ["Athi River"]},
+        {"name": "Mwala", "towns": ["Mwala"]},
+        {"name": "Kangundo", "towns": ["Kangundo"]},
+        {"name": "Kathiani", "towns": ["Kathiani"]},
+        {"name": "Yatta", "towns": ["Kithimani"]},
+        {"name": "Matungulu", "towns": ["Matungulu"]},
+        {"name": "Masinga", "towns": ["Masinga"]}
+      ]
+    },
+    {
+      "county": "Kakamega",
+      "subcounties": [
+        {"name": "Lurambi", "towns": ["Kakamega"]},
+        {"name": "Mumias East", "towns": ["Shianda"]},
+        {"name": "Mumias West", "towns": ["Mumias"]},
+        {"name": "Navakholo", "towns": ["Navakholo"]},
+        {"name": "Matungu", "towns": ["Matungu"]},
+        {"name": "Ikolomani", "towns": ["Ileho"]},
+        {"name": "Shinyalu", "towns": ["Shinyalu"]}
+      ]
+    },
+    {
+      "county": "Bungoma",
+      "subcounties": [
+        {"name": "Webuye East", "towns": ["Webuye"]},
+        {"name": "Webuye West", "towns": ["Chwele"]},
+        {"name": "Kanduyi", "towns": ["Bungoma"]},
+        {"name": "Kimilili", "towns": ["Kimilili"]},
+        {"name": "Sirisia", "towns": ["Sirisia"]},
+        {"name": "Tongaren", "towns": ["Ndengelwa"]},
+        {"name": "Mt Elgon", "towns": ["Kapsokwony"]}
+      ]
+    }
+  ]
+}
+

@@ -12,28 +12,28 @@ export default function useAuthFetch() {
 
   const fetcher = {
     get: async (url, opts = {}) => {
-      const token = await getToken({ template: "standard" }); // get auth token
+      const token = await getToken(); // V0.8: No template parameter
       return API.get(url, {
         ...opts,
         headers: { ...(opts.headers || {}), Authorization: `Bearer ${token}` },
       });
     },
     post: async (url, data, opts = {}) => {
-      const token = await getToken({ template: "standard" });
+      const token = await getToken(); // V0.8: No template parameter
       return API.post(url, data, {
         ...opts,
         headers: { ...(opts.headers || {}), Authorization: `Bearer ${token}` },
       });
     },
     put: async (url, data, opts = {}) => {
-      const token = await getToken({ template: "standard" });
+      const token = await getToken(); // V0.8: No template parameter
       return API.put(url, data, {
         ...opts,
         headers: { ...(opts.headers || {}), Authorization: `Bearer ${token}` },
       });
     },
     del: async (url, opts = {}) => {
-      const token = await getToken({ template: "standard" });
+      const token = await getToken(); // V0.8: No template parameter
       return API.delete(url, {
         ...opts,
         headers: { ...(opts.headers || {}), Authorization: `Bearer ${token}` },

@@ -1,11 +1,13 @@
 # 🌾 AgriPulse - Agricultural Marketplace Platform
 
-**Version 0.7**
+**Version 0.8**
 
-AgriPulse is a modern agricultural marketplace platform that connects farmers, buyers, and drivers in Kenya. Built with React, Node.js, and MongoDB, it enables real-time matching of agricultural produce with market demands, facilitating seamless transactions and logistics coordination.
+AgriPulse is a modern agricultural marketplace platform that directly matches farmers (suppliers), buyers, and transport providers to cut out middlemen. Built with React, Node.js, and MongoDB, it features real-time notifications, chat functionality, ratings, and optional SMS/USSD fallbacks for low-connectivity users.
 
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/Matizkim/AGRIPULSE)
-[![Version](https://img.shields.io/badge/version-0.7-green)](https://github.com/Matizkim/AGRIPULSE)
+[![Version](https://img.shields.io/badge/version-0.8-green)](https://github.com/Matizkim/AGRIPULSE)
+
+> **What's New in V0.8**: See [V0.8_CHANGELOG.md](./V0.8_CHANGELOG.md) for detailed changes including user mapping fixes, enhanced matching algorithm, chat system, ratings, and more.
 
 ## 📋 Table of Contents
 
@@ -21,14 +23,24 @@ AgriPulse is a modern agricultural marketplace platform that connects farmers, b
 
 ## ✨ Features
 
-- **Produce Listings**: Farmers can post their agricultural products with details, quantities, and pricing
-- **Market Demands**: Buyers can post demands for specific crops and quantities
-- **Smart Matching**: Automatic matching between produce listings and market demands
-- **Real-time Updates**: Socket.IO integration for instant notifications
-- **SMS Notifications**: Africa's Talking integration for SMS alerts
-- **User Authentication**: Secure authentication using Clerk
+### Core Features
+- **Produce Listings**: Farmers can post their agricultural products with details, quantities, pricing, and images
+- **Market Demands**: Buyers can post demands for specific crops with urgency levels and preferred locations
+- **Smart Matching**: Advanced matching algorithm with scoring based on crop, location, price, and freshness
+- **Match Lifecycle**: Complete match management (requested → offered → accepted → in_transit → completed)
+- **Real-time Updates**: Socket.IO integration for instant notifications and live updates
+- **Chat & Messaging**: In-app messaging for match negotiations and communication
+- **Ratings & Reviews**: Post-match rating system to build trust and reputation
+- **Transport Pool**: Driver management with route matching and capacity tracking
+- **Advanced Search & Filters**: Category, price range, location, negotiable, verified sellers, and more
+- **User Profiles**: Comprehensive profiles with ratings, verification badges, and role management
+
+### Additional Features
+- **SMS Notifications**: Africa's Talking integration for SMS alerts (fallback for low-connectivity)
+- **User Authentication**: Secure authentication using Clerk with local user mapping
 - **Modern UI**: Beautiful, responsive interface built with React and TailwindCSS
-- **Transport Pool**: Driver management for logistics coordination
+- **Premium Features**: Sponsored listings, promoted posts (foundation for monetization)
+- **Multi-role Support**: Users can be farmers, buyers, drivers, or combinations
 
 ## 🛠 Tech Stack
 

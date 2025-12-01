@@ -1,0 +1,163 @@
+{
+  "foods": [
+    {
+      "category": "Cereals & Grains",
+      "subcategories": [
+        {
+          "name": "Maize Family",
+          "crops": ["Maize", "Sweet Corn", "Popcorn Maize"]
+        },
+        {
+          "name": "Rice Family",
+          "crops": ["Paddy Rice", "Basmati Rice", "Brown Rice"]
+        },
+        {
+          "name": "Wheat Family",
+          "crops": ["Wheat", "Barley", "Rye"]
+        },
+        {
+          "name": "Millets",
+          "crops": ["Finger Millet", "Pearl Millet", "Sorghum"]
+        },
+        {
+          "name": "Other Grains",
+          "crops": ["Oats", "Quinoa"]
+        }
+      ]
+    },
+    {
+      "category": "Legumes & Pulses",
+      "subcategories": [
+        {
+          "name": "Legumes",
+          "crops": [
+            "Red Beans",
+            "Black Beans",
+            "Rosecoco Beans",
+            "Nyayo Beans",
+            "Green Beans",
+            "Garden Peas",
+            "Sugar Snap Peas",
+            "Cowpeas",
+            "Green Grams",
+            "Pigeon Peas",
+            "Soybeans",
+            "Lentils"
+          ]
+        }
+      ]
+    },
+    {
+      "category": "Vegetables",
+      "subcategories": [
+        {
+          "name": "Leafy Vegetables",
+          "crops": [
+            "Kale (Sukuma Wiki)",
+            "Spinach",
+            "Cabbage",
+            "Lettuce",
+            "Managu",
+            "Terere",
+            "Asparagus"
+          ]
+        },
+        {
+          "name": "Root Vegetables",
+          "crops": ["Carrots", "Beetroot", "Potatoes", "Sweet Potatoes", "Arrowroots"]
+        },
+        {
+          "name": "Fruit Vegetables",
+          "crops": ["Tomatoes", "Capsicum", "Chili", "Eggplant", "Cucumber", "Pumpkin"]
+        },
+        {
+          "name": "Bulbs & Stems",
+          "crops": ["Onions", "Garlic", "Leeks", "Ginger"]
+        }
+      ]
+    },
+    {
+      "category": "Fruits",
+      "subcategories": [
+        {
+          "name": "Tropical Fruits",
+          "crops": ["Mangoes", "Pineapples", "Bananas", "Papayas", "Avocado"]
+        },
+        {
+          "name": "Citrus",
+          "crops": ["Oranges", "Lemons", "Limes", "Tangerines"]
+        },
+        {
+          "name": "Temperate Fruits",
+          "crops": ["Apples", "Pears", "Plums"]
+        },
+        {
+          "name": "Berries",
+          "crops": ["Strawberries", "Raspberries"]
+        }
+      ]
+    },
+    {
+      "category": "Tubers & Roots",
+      "subcategories": [
+        {
+          "name": "Tubers",
+          "crops": ["Cassava", "Yams", "Sweet Potatoes", "Arrowroots"]
+        }
+      ]
+    },
+    {
+      "category": "Livestock Products",
+      "subcategories": [
+        {
+          "name": "Meat",
+          "crops": ["Beef", "Mutton", "Pork", "Chicken", "Goat", "Rabbit", "Fish"]
+        },
+        {
+          "name": "Dairy",
+          "crops": ["Milk", "Cheese", "Butter", "Ghee", "Yoghurt"]
+        },
+        {
+          "name": "Eggs",
+          "crops": ["Chicken Eggs", "Quail Eggs"]
+        }
+      ]
+    },
+    {
+      "category": "Herbs & Spices",
+      "subcategories": [
+        {
+          "name": "Herbs",
+          "crops": ["Coriander", "Basil", "Mint", "Rosemary", "Thyme"]
+        },
+        {
+          "name": "Spices",
+          "crops": ["Ginger", "Turmeric", "Garlic"]
+        }
+      ]
+    },
+    {
+      "category": "Nuts & Oilseeds",
+      "subcategories": [
+        {
+          "name": "Nuts",
+          "crops": ["Groundnuts", "Macadamia", "Coconut"]
+        },
+        {
+          "name": "Oilseeds",
+          "crops": ["Sunflower", "Sesame", "Castor"]
+        }
+      ]
+    },
+    {
+      "category": "Cash Crops",
+      "subcategories": [
+        {
+          "name": "Export Crops",
+          "crops": ["Coffee", "Tea", "Cotton", "Tobacco", "Pyrethrum", "Sugarcane"]
+        }
+      ]
+    }
+  ]
+}
+

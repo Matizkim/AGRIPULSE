@@ -1,0 +1,77 @@
+{
+  "routes": [
+    {
+      "name": "Nairobi - Mombasa",
+      "origin": { "county": "Nairobi", "town": "Nairobi" },
+      "destination": { "county": "Mombasa", "town": "Mombasa" },
+      "distance": 485
+    },
+    {
+      "name": "Nairobi - Nakuru",
+      "origin": { "county": "Nairobi", "town": "Nairobi" },
+      "destination": { "county": "Nakuru", "town": "Nakuru" },
+      "distance": 160
+    },
+    {
+      "name": "Nairobi - Kisumu",
+      "origin": { "county": "Nairobi", "town": "Nairobi" },
+      "destination": { "county": "Kisumu", "town": "Kisumu" },
+      "distance": 345
+    },
+    {
+      "name": "Nairobi - Eldoret",
+      "origin": { "county": "Nairobi", "town": "Nairobi" },
+      "destination": { "county": "Uasin Gishu", "town": "Eldoret" },
+      "distance": 310
+    },
+    {
+      "name": "Nairobi - Thika",
+      "origin": { "county": "Nairobi", "town": "Nairobi" },
+      "destination": { "county": "Kiambu", "town": "Thika" },
+      "distance": 45
+    },
+    {
+      "name": "Nairobi - Naivasha",
+      "origin": { "county": "Nairobi", "town": "Nairobi" },
+      "destination": { "county": "Nakuru", "town": "Naivasha" },
+      "distance": 90
+    },
+    {
+      "name": "Nakuru - Eldoret",
+      "origin": { "county": "Nakuru", "town": "Nakuru" },
+      "destination": { "county": "Uasin Gishu", "town": "Eldoret" },
+      "distance": 150
+    },
+    {
+      "name": "Nakuru - Kisumu",
+      "origin": { "county": "Nakuru", "town": "Nakuru" },
+      "destination": { "county": "Kisumu", "town": "Kisumu" },
+      "distance": 185
+    },
+    {
+      "name": "Mombasa - Malindi",
+      "origin": { "county": "Mombasa", "town": "Mombasa" },
+      "destination": { "county": "Kilifi", "town": "Malindi" },
+      "distance": 120
+    },
+    {
+      "name": "Nairobi - Machakos",
+      "origin": { "county": "Nairobi", "town": "Nairobi" },
+      "destination": { "county": "Machakos", "town": "Machakos" },
+      "distance": 65
+    },
+    {
+      "name": "Nairobi - Kiambu",
+      "origin": { "county": "Nairobi", "town": "Nairobi" },
+      "destination": { "county": "Kiambu", "town": "Kiambu" },
+      "distance": 20
+    },
+    {
+      "name": "Nairobi - Ruiru",
+      "origin": { "county": "Nairobi", "town": "Nairobi" },
+      "destination": { "county": "Kiambu", "town": "Ruiru" },
+      "distance": 25
+    }
+  ]
+}
+

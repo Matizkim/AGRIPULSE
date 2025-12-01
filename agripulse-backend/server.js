@@ -13,6 +13,11 @@ import produceRoutes from "./src/routes/produce.js";
 import demandRoutes from "./src/routes/demand.js";
 import smsRoutes from "./src/routes/sms.js";
 import matchRoutes from "./src/routes/match.js";
+import messageRoutes from "./src/routes/messages.js";
+import reviewRoutes from "./src/routes/reviews.js";
+import transportRoutes from "./src/routes/transport.js";
+import userRoutes from "./src/routes/users.js";
+import matchingRoutes from "./src/routes/matching.js";
 
 // Clerk middleware (new)
 import { clerkMiddlewareAdapter } from "./src/utils/clerkVerify.js";
@@ -98,27 +103,50 @@ app.use(express.urlencoded({ extended: true }));
 // Basic rate limit
 app.use(rateLimit({ windowMs: 60 * 1000, max: 120 }));
 
-// Routes
+// Routes - V0.8
 app.use("/api/produce", produceRoutes);
 app.use("/api/demand", demandRoutes);
-app.use("/api/sms", smsRoutes);
 app.use("/api/match", matchRoutes);
+app.use("/api/messages", messageRoutes);
+app.use("/api/reviews", reviewRoutes);
+app.use("/api/transport", transportRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/matching", matchingRoutes);
+app.use("/api/sms", smsRoutes);
 
 // Health check
 app.get("/health", (req, res) => res.json({ ok: true }));
 
-// Socket.IO implementation
+// Socket.IO implementation - V0.8 Enhanced
 io.on("connection", (socket) => {
   console.log("Socket connected:", socket.id);
 
+  // Join user-specific room
+  socket.on("joinUser", (userId) => {
+    socket.join(`user:${userId}`);
+    console.log(`${socket.id} joined user room: user:${userId}`);
+  });
+
+  // Join location/crop room
   socket.on("joinRoom", (room) => {
     socket.join(room);
     console.log(`${socket.id} joined ${room}`);
   });
 
+  // Join match room for chat
+  socket.on("joinMatch", (matchId) => {
+    socket.join(`match:${matchId}`);
+    console.log(`${socket.id} joined match: ${matchId}`);
+  });
+
   socket.on("leaveRoom", (room) => {
     socket.leave(room);
     console.log(`${socket.id} left ${room}`);
+  });
+
+  socket.on("leaveMatch", (matchId) => {
+    socket.leave(`match:${matchId}`);
+    console.log(`${socket.id} left match: ${matchId}`);
   });
 
   socket.on("disconnect", () => {
