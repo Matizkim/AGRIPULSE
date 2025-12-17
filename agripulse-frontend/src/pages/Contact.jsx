@@ -26,7 +26,7 @@ export default function Contact() {
     
     // In a real app, this would send to your backend
     // For now, we'll create a mailto link
-    const mailtoLink = `mailto:kinyuam047@gmail.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(`From: ${formData.name} (${formData.email})\n\n${formData.message}`)}`;
+    const mailtoLink = `mailto:Agripulseltd@gmail.com?subject=${encodeURIComponent(formData.subject)}&body=${encodeURIComponent(`From: ${formData.name} (${formData.email})\n\n${formData.message}`)}`;
     window.location.href = mailtoLink;
     
     setTimeout(() => {
@@ -37,7 +37,7 @@ export default function Contact() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8 pt-24 md:pt-20">
       {/* Header */}
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-bold text-slate-900 mb-4">Contact Us</h1>
@@ -78,8 +78,8 @@ export default function Contact() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-slate-900 mb-1">Email</h3>
-                  <a href="mailto:kinyuam047@gmail.com" className="text-blue-600 hover:text-blue-700">
-                    kinyuam047@gmail.com
+                  <a href="mailto:Agripulseltd@gmail.com" className="text-blue-600 hover:text-blue-700">
+                    Agripulseltd@gmail.com
                   </a>
                 </div>
               </div>
@@ -90,7 +90,7 @@ export default function Contact() {
                 </div>
                 <div>
                   <h3 className="font-semibold text-slate-900 mb-1">Address</h3>
-                  <p className="text-slate-600">62000, Nairobi, Kenya</p>
+                  <p className="text-slate-600">62000-00200 Nairobi</p>
                 </div>
               </div>
             </div>

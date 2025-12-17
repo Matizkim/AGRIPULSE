@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { updateUser, getCurrentUser } from "../api/users";
@@ -16,6 +16,7 @@ export default function PlanSelection() {
   const navigate = useNavigate();
   const { isSignedIn } = useUser();
   const { showToast } = useToast();
+  const isNavigatingToSuccess = useRef(false);
 
   useEffect(() => {
     if (!isSignedIn) {
@@ -26,24 +27,35 @@ export default function PlanSelection() {
   }, [isSignedIn]);
 
   const loadUser = async () => {
+    // Don't load user if we're navigating to success page
+    if (isNavigatingToSuccess.current) {
+      return;
+    }
+    
     try {
       const data = await getCurrentUser();
       setUser(data);
       
       // If user already has a tier, show it as current plan (don't redirect)
       // User can view their current plan but can't reselect it
-      if (data && data.tier) {
-        // Stay on page to show current plan
+      // BUT: Don't redirect if we're in the process of navigating to success
+      if (data && data.tier && !isNavigatingToSuccess.current) {
+        // Stay on page to show current plan (unless we just selected it)
+        // RoleCheck will handle redirect if needed
         return;
       }
       
-      // If user is already verified and approved, they shouldn't be here
-      if (data && data.isVerified && data.verificationStatus === "approved") {
-        navigate("/");
+      // If user is approved but has no tier, they SHOULD be here - don't redirect
+      // This is the correct state - they need to select a plan
+      if (data && data.isVerified && data.verificationStatus === "approved" && !data.tier) {
+        // Stay on plan selection page - this is correct
         return;
       }
       
-      // If no tier, stay on plan selection page (this is correct)
+      // If user is approved and has tier, RoleCheck will handle redirect
+      // Don't redirect from here to avoid conflicts
+      
+      // If no tier and not approved, stay on plan selection page (this is correct)
     } catch (err) {
       console.error("Error loading user:", err);
       // Even if there's an error, allow user to select plan
@@ -61,12 +73,26 @@ export default function PlanSelection() {
       const response = await updateUser({ tier });
       console.log("✅ Tier selected successfully:", response);
       
-      showToast("Plan selected successfully! Redirecting to onboarding...", "success");
+      // Reload user data to ensure we have the latest state from backend
+      try {
+        const updatedUser = await getCurrentUser();
+        setUser(updatedUser);
+        console.log("✅ User data reloaded:", updatedUser);
+      } catch (reloadErr) {
+        console.warn("⚠️ Could not reload user, but tier was updated:", reloadErr);
+        // Still update local state as fallback
+        setUser(prev => prev ? { ...prev, tier } : { tier });
+      }
       
-      // After selecting tier, proceed to onboarding
-      setTimeout(() => {
-        navigate("/onboarding");
-      }, 1500);
+      showToast("Plan selected successfully!", "success");
+      
+      // Set flag to prevent loadUser from interfering
+      isNavigatingToSuccess.current = true;
+      
+      // After selecting tier, show success page
+      // Use replace to prevent going back to plan selection
+      // Navigate immediately to avoid RoleCheck intercepting
+      navigate("/onboarding-success", { replace: true });
     } catch (err) {
       console.error("❌ Error selecting tier:", err);
       console.error("  - Error response:", err.response?.data);

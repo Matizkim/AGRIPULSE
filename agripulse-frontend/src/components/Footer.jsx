@@ -36,11 +36,11 @@ export default function Footer() {
               </div>
               <div className="flex items-center gap-2">
                 <EnvelopeIcon className="w-4 h-4" />
-                <a href="mailto:kinyuam047@gmail.com" className="hover:text-green-400 transition-colors">kinyuam047@gmail.com</a>
+                <a href="mailto:Agripulseltd@gmail.com" className="hover:text-green-400 transition-colors">Agripulseltd@gmail.com</a>
               </div>
               <div className="flex items-center gap-2">
                 <MapPinIcon className="w-4 h-4" />
-                <span>62000, Nairobi, Kenya</span>
+                <span>62000-00200 Nairobi</span>
               </div>
             </div>
           </div>
@@ -49,22 +49,38 @@ export default function Footer() {
             <h4 className="font-bold mb-4 text-green-400">Quick Links</h4>
             <ul className="space-y-2 text-sm">
               <li>
-                <Link to="/" className="text-slate-300 hover:text-green-400 transition-colors">
+                <Link 
+                  to="/" 
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="text-slate-300 hover:text-green-400 transition-colors"
+                >
                   Home
                 </Link>
               </li>
               <li>
-                <Link to="/produce" className="text-slate-300 hover:text-green-400 transition-colors">
+                <Link 
+                  to="/produce" 
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="text-slate-300 hover:text-green-400 transition-colors"
+                >
                   Produce
                 </Link>
               </li>
               <li>
-                <Link to="/demand" className="text-slate-300 hover:text-green-400 transition-colors">
+                <Link 
+                  to="/demand" 
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="text-slate-300 hover:text-green-400 transition-colors"
+                >
                   Demand
                 </Link>
               </li>
               <li>
-                <Link to="/transport" className="text-slate-300 hover:text-green-400 transition-colors">
+                <Link 
+                  to="/transport" 
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="text-slate-300 hover:text-green-400 transition-colors"
+                >
                   Transport
                 </Link>
               </li>
@@ -83,12 +99,20 @@ export default function Footer() {
                 </button>
               </li>
               <li>
-                <Link to="/safety" className="text-slate-300 hover:text-green-400 transition-colors">
+                <Link 
+                  to="/safety" 
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="text-slate-300 hover:text-green-400 transition-colors"
+                >
                   Safety Center
                 </Link>
               </li>
               <li>
-                <Link to="/faq" className="text-slate-300 hover:text-green-400 transition-colors">
+                <Link 
+                  to="/faq" 
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="text-slate-300 hover:text-green-400 transition-colors"
+                >
                   FAQs
                 </Link>
               </li>
@@ -115,12 +139,20 @@ export default function Footer() {
                 </button>
               </li>
               <li>
-                <Link to="/terms" className="text-slate-300 hover:text-green-400 transition-colors">
+                <Link 
+                  to="/terms" 
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="text-slate-300 hover:text-green-400 transition-colors"
+                >
                   Terms & Conditions
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="text-slate-300 hover:text-green-400 transition-colors">
+                <Link 
+                  to="/contact" 
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="text-slate-300 hover:text-green-400 transition-colors"
+                >
                   Contact Us
                 </Link>
               </li>

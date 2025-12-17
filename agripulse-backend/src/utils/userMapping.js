@@ -106,7 +106,7 @@ export async function createOrGetLocalUser(req, res, next) {
       // They must go through onboarding to select their role
     }
 
-    // If user doesn't exist, create one
+    // If user doesn't exist, create one (this handles both sign-up and first-time OAuth sign-in)
     if (!user) {
       // Get additional info from Clerk
       let clerkUser = {};

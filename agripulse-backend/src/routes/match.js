@@ -408,9 +408,15 @@ router.post(
         match.initiatedBy = userId;
       }
 
+      // Get match quantity - use the minimum of listing and demand quantities, or from match if specified
+      const listingQty = match.listingId.quantityKg || 0;
+      const demandQty = match.demandId.qtyKg || 0;
+      const matchQuantity = match.quantityKg || Math.min(listingQty, demandQty);
+      
       // Update match
       match.status = "accepted";
       match.acceptedBy = userId;
+      match.quantityKg = matchQuantity; // Store the matched quantity
       match.events.push({
         who: userId,
         what: "accepted",
@@ -418,16 +424,33 @@ router.post(
         timestamp: new Date()
       });
 
-      // Update listing and demand status (try-catch for old data with invalid IDs)
+      // Update listing and demand status and quantities (try-catch for old data with invalid IDs)
       try {
         match.listingId.status = "matched";
+        // Subtract matched quantity from listing
+        const remainingQuantity = (match.listingId.quantityKg || 0) - matchQuantity;
+        if (remainingQuantity > 0) {
+          match.listingId.quantityKg = remainingQuantity;
+          match.listingId.status = "available"; // Still available if quantity remains
+        } else {
+          match.listingId.quantityKg = 0;
+          match.listingId.status = "sold_out"; // Mark as sold out if no quantity left
+        }
         await match.listingId.save();
       } catch (err) {
         console.warn("⚠️ Could not save listing (old data with invalid ID):", err.message);
       }
       
       try {
-        match.demandId.status = "fulfilled";
+        // Subtract matched quantity from demand
+        const remainingDemand = (match.demandId.qtyKg || 0) - matchQuantity;
+        if (remainingDemand > 0) {
+          match.demandId.qtyKg = remainingDemand;
+          match.demandId.status = "open"; // Still open if quantity remains
+        } else {
+          match.demandId.qtyKg = 0;
+          match.demandId.status = "fulfilled"; // Mark as fulfilled if no quantity left
+        }
         await match.demandId.save();
       } catch (err) {
         console.warn("⚠️ Could not save demand (old data with invalid ID):", err.message);

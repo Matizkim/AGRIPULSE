@@ -37,7 +37,7 @@ export default function FAQ() {
     },
     {
       question: "How do I contact support?",
-      answer: "You can contact us via email at kinyuam047@gmail.com or call +254 708 244 593. You can also use the in-platform messaging system to contact our admin team for assistance.",
+      answer: "You can contact us via email at Agripulseltd@gmail.com or call +254 708 244 593. You can also use the in-platform messaging system to contact our admin team for assistance.",
     },
     {
       question: "What payment methods are accepted?",
@@ -58,7 +58,7 @@ export default function FAQ() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8 pt-24 md:pt-20">
       {/* Header */}
       <div className="text-center mb-12">
         <div className="inline-flex items-center justify-center w-20 h-20 bg-green-100 rounded-full mb-6">
@@ -112,7 +112,7 @@ export default function FAQ() {
         </p>
         <div className="flex flex-wrap justify-center gap-4">
           <a
-            href="mailto:kinyuam047@gmail.com"
+            href="mailto:Agripulseltd@gmail.com"
             className="px-6 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-all"
           >
             Email Us

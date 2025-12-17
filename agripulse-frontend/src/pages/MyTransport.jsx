@@ -11,6 +11,7 @@ export default function MyTransportPage() {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
   const [activeTab, setActiveTab] = useState("transports"); // "transports" or "trips"
+  const [expandedCardId, setExpandedCardId] = useState(null);
 
   useEffect(() => {
     loadUser();
@@ -125,9 +126,22 @@ export default function MyTransportPage() {
             <p className="text-slate-500">You haven't posted any transport listings yet.</p>
           </div>
         ) : (
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-4">
             {transports.map((transport) => (
-              <TransportCard key={transport._id} item={transport} />
+              <div
+                key={transport._id}
+                className={expandedCardId === transport._id ? 'sm:col-span-2 lg:col-span-2 xl:col-span-3' : ''}
+              >
+              <TransportCard 
+                key={transport._id} 
+                item={transport}
+                isExpanded={expandedCardId === transport._id}
+                onExpand={(cardId) => {
+                  // Only one card can be expanded at a time
+                  setExpandedCardId(cardId === expandedCardId ? null : cardId);
+                }}
+              />
+              </div>
             ))}
           </div>
         )

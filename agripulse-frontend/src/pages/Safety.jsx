@@ -155,13 +155,13 @@ export default function Safety() {
         </p>
         <div className="flex flex-wrap justify-center gap-4">
           <a 
-            href={`mailto:kinyuam047@gmail.com?subject=Safety Concern&body=Please describe your safety concern or question:`}
+            href={`mailto:Agripulseltd@gmail.com?subject=Safety Concern&body=Please describe your safety concern or question:`}
             className="px-6 py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-all"
           >
             Contact Safety Team
           </a>
           <a
-            href={`mailto:kinyuam047@gmail.com?subject=Report an Issue&body=Please describe the issue you'd like to report:`}
+            href={`mailto:Agripulseltd@gmail.com?subject=Report an Issue&body=Please describe the issue you'd like to report:`}
             className="px-6 py-3 bg-slate-100 text-slate-700 rounded-xl font-semibold hover:bg-slate-200 transition-all"
           >
             Report an Issue

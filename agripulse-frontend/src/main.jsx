@@ -21,7 +21,11 @@ function TokenSetup() {
 
 createRoot(document.getElementById("root")).render(
   <React.StrictMode>
-    <ClerkProvider publishableKey={clerkPubKey}>
+    <ClerkProvider 
+      publishableKey={clerkPubKey}
+      afterSignUpUrl="/onboarding"
+      afterSignInUrl="/onboarding"
+    >
       <TokenSetup />
       <SocketProvider>
         <ToastProvider>

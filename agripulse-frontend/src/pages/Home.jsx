@@ -30,30 +30,47 @@ export default function Home() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Check if signed-in user needs to select a plan
+  // Check if signed-in user needs to complete onboarding
+  // Since Home is not protected, we need to check and redirect here
   useEffect(() => {
-    const checkUserTier = async () => {
+    const checkUserStatus = async () => {
       if (isSignedIn) {
         try {
           const user = await getCurrentUser();
-          // If user doesn't have a tier, redirect to plan selection immediately
-          if (!user || !user.tier) {
-            navigate("/plan-selection");
+          
+          // If user hasn't completed onboarding, redirect immediately
+          if (!user || !user.primaryRole || !user.roles || user.roles.length === 0 || 
+              !user.name || !user.phone || !user.location?.county) {
+            navigate("/onboarding", { replace: true });
             return;
           }
-          // Store user tier to conditionally show premium section
-          setUserTier(user.tier);
+          
+          // If user is not approved, redirect to onboarding (waiting screen)
+          if (!user.isVerified || user.verificationStatus !== "approved") {
+            navigate("/onboarding", { replace: true });
+            return;
+          }
+          
+          // If user is approved but has no tier, redirect to plan selection
+          if (!user.tier) {
+            navigate("/plan-selection", { replace: true });
+            return;
+          }
+          
+          // User is fully onboarded - set tier for display
+          if (user.tier) {
+            setUserTier(user.tier);
+          }
         } catch (err) {
-          // If error fetching user (e.g., 500 error), still redirect to plan selection
-          // This ensures new users always go through plan selection first
-          console.error("Error checking user tier:", err);
-          navigate("/plan-selection");
+          // If error fetching user (e.g., user doesn't exist), redirect to onboarding
+          console.error("Error checking user status:", err);
+          navigate("/onboarding", { replace: true });
         }
       }
     };
     // Small delay to ensure Clerk is fully initialized
     const timer = setTimeout(() => {
-      checkUserTier();
+      checkUserStatus();
     }, 100);
     return () => clearTimeout(timer);
   }, [isSignedIn, navigate]);
@@ -62,18 +79,25 @@ export default function Home() {
   useEffect(() => {
     const loadRecentDemands = async () => {
       try {
-        const data = await fetchDemands({ limit: 3, sortBy: "newest" });
-        if (data.demands) {
-          setRecentDemands(data.demands.slice(0, 3));
-        } else if (Array.isArray(data)) {
-          setRecentDemands(data.slice(0, 3));
+        const data = await fetchDemands({ limit: 9, sortBy: "newest" });
+        if (data && data.demands && data.demands.length > 0) {
+          setRecentDemands(data.demands);
+        } else if (Array.isArray(data) && data.length > 0) {
+          setRecentDemands(data);
+        } else {
+          // If no demands, set empty array to show fallback
+          setRecentDemands([]);
         }
       } catch (err) {
         console.error("Error loading recent demands:", err);
+        // On error, set empty array to show fallback
+        setRecentDemands([]);
       }
     };
     loadRecentDemands();
   }, []);
+
+  // Show all demands (no rotation)
 
   const imagePath = (filename) => {
     // Use public path - images should be in public/images folder
@@ -125,7 +149,8 @@ export default function Home() {
                 </Link>
                 <Link
                   to="/demand"
-                  className="group px-6 sm:px-8 py-3 sm:py-4 bg-white/98 text-emerald-700 border-2 border-yellow-300 rounded-xl font-bold text-base sm:text-lg shadow-xl hover:shadow-yellow-300/50 hover:bg-white transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                  className="group px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 text-slate-900 border-2 border-yellow-300 rounded-xl font-bold text-base sm:text-lg shadow-2xl hover:shadow-yellow-400/50 hover:from-yellow-300 hover:via-yellow-400 hover:to-yellow-500 transition-all duration-300 transform hover:scale-105 flex items-center justify-center gap-2"
                 >
                   <span>Post Your Demand</span>
                   <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
@@ -344,8 +369,45 @@ export default function Home() {
             <p className="text-base sm:text-lg md:text-xl text-slate-600 mb-6 sm:mb-8">
               Join hundreds of businesses and households posting what they need today.
             </p>
+          </div>
+
+          {/* Latest Demands Preview - Show 2-3 before the button */}
+          {recentDemands.length > 0 && (
+            <div className="mb-6 sm:mb-8">
+              <h3 className="text-lg sm:text-xl font-semibold text-slate-800 mb-4">Latest Demands</h3>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
+                {recentDemands.slice(0, 3).map((demand, idx) => {
+                  const buyer = demand.buyerId || demand.buyer;
+                  const buyerName = buyer?.name || "Unknown Buyer";
+                  const buyerLocation = demand.location?.county || "Location";
+                  return (
+                    <div
+                      key={demand._id || idx}
+                      className="bg-gradient-to-br from-emerald-50 to-green-50 p-5 sm:p-6 rounded-xl border border-emerald-200 hover:shadow-lg transition-all duration-500 transform hover:-translate-y-1 animate-fade-in"
+                    >
+                      <div className="flex items-start gap-3 mb-3">
+                        <ClipboardDocumentListIcon className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 mt-1 flex-shrink-0" />
+                        <div className="flex-1">
+                          <p className="text-sm sm:text-base text-slate-800 font-medium mb-2">
+                            {demand.qtyKg} kg {demand.crop} needed
+                          </p>
+                          <div className="text-xs text-slate-600">
+                            <p className="font-semibold">{buyerName}</p>
+                            <p className="text-slate-500">{buyerLocation}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div className="text-center mb-8 sm:mb-12">
             <Link
               to="/demand"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-all text-sm sm:text-base"
             >
               Create your demand
@@ -354,21 +416,54 @@ export default function Home() {
           </div>
 
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-            {[
-              "500 kg onions needed in Nakuru",
-              "100 crates of tomatoes needed by Monday",
-              "2 tons of cabbage for school supply",
-            ].map((demand, idx) => (
-              <div
-                key={idx}
-                className="bg-gradient-to-br from-emerald-50 to-green-50 p-5 sm:p-6 rounded-xl border border-emerald-200 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
-              >
-                <div className="flex items-start gap-3">
-                  <ClipboardDocumentListIcon className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 mt-1 flex-shrink-0" />
-                  <p className="text-sm sm:text-base text-slate-800 font-medium">{demand}</p>
+            {recentDemands.length > 0 ? (
+              recentDemands.slice(0, 9).map((demand, idx) => {
+                const buyer = demand.buyerId || demand.buyer;
+                const buyerName = buyer?.name || "Unknown Buyer";
+                const buyerLocation = demand.location?.county || "Location";
+                return (
+                  <div
+                    key={demand._id || idx}
+                    className="bg-gradient-to-br from-emerald-50 to-green-50 p-5 sm:p-6 rounded-xl border border-emerald-200 hover:shadow-lg transition-all duration-500 transform hover:-translate-y-1 animate-fade-in"
+                  >
+                    <div className="flex items-start gap-3 mb-3">
+                      <ClipboardDocumentListIcon className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 mt-1 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="text-sm sm:text-base text-slate-800 font-medium mb-2">
+                          {demand.qtyKg} kg {demand.crop} needed
+                        </p>
+                        <div className="text-xs text-slate-600">
+                          <p className="font-semibold">{buyerName}</p>
+                          <p className="text-slate-500">{buyerLocation}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              [
+                { text: "500 kg onions needed in Nakuru", buyer: "John Mwangi", location: "Nakuru" },
+                { text: "100 crates of tomatoes needed by Monday", buyer: "Sarah Wanjiru", location: "Nairobi" },
+                { text: "2 tons of cabbage for school supply", buyer: "Peter Ochieng", location: "Kisumu" },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  className="bg-gradient-to-br from-emerald-50 to-green-50 p-5 sm:p-6 rounded-xl border border-emerald-200 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1"
+                >
+                  <div className="flex items-start gap-3 mb-3">
+                    <ClipboardDocumentListIcon className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600 mt-1 flex-shrink-0" />
+                    <div className="flex-1">
+                      <p className="text-sm sm:text-base text-slate-800 font-medium mb-2">{item.text}</p>
+                      <div className="text-xs text-slate-600">
+                        <p className="font-semibold">{item.buyer}</p>
+                        <p className="text-slate-500">{item.location}</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </section>
@@ -412,6 +507,7 @@ export default function Home() {
               <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                 <Link
                   to="/transport"
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                   className="inline-flex items-center gap-2 px-6 py-3 bg-white/95 text-blue-700 border-2 border-white rounded-xl font-bold text-base sm:text-lg shadow-xl hover:shadow-2xl hover:bg-white transition-all duration-300 transform hover:scale-105 justify-center"
                 >
                   <span>Select Transport</span>
@@ -419,6 +515,7 @@ export default function Home() {
                 </Link>
                 <Link
                   to="/transport"
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                   className="inline-flex items-center gap-2 px-6 py-3 bg-blue-600/95 text-white border-2 border-blue-400 rounded-xl font-bold text-base sm:text-lg shadow-xl hover:shadow-2xl hover:bg-blue-600 transition-all duration-300 transform hover:scale-105 justify-center"
                 >
                   <span>Find Drivers</span>
@@ -482,6 +579,7 @@ export default function Home() {
               <Link
                 key={testimonial.id}
                 to={`/reviews/${testimonial.id}`}
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                 className="bg-gradient-to-br from-slate-50 to-white p-6 sm:p-8 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-slate-100 cursor-pointer block transform hover:-translate-y-1"
               >
                 <div className="flex items-center justify-between mb-3 sm:mb-4">
@@ -495,10 +593,15 @@ export default function Home() {
                   )}
                 </div>
                 <p className="text-slate-700 text-base sm:text-lg mb-4 sm:mb-6 italic">"{testimonial.quote}"</p>
-                <div className="border-t border-slate-200 pt-4">
-                  <p className="font-bold text-slate-900 text-sm sm:text-base">– {testimonial.author}</p>
-                  <p className="text-slate-600 text-xs sm:text-sm">{testimonial.role}</p>
-                  <p className="text-slate-400 text-xs mt-1">{testimonial.date}</p>
+                <div className="border-t border-slate-200 pt-4 flex items-start gap-3">
+                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-bold text-lg">{testimonial.author.charAt(0)}</span>
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-bold text-slate-900 text-sm sm:text-base">– {testimonial.author}</p>
+                    <p className="text-slate-600 text-xs sm:text-sm">{testimonial.role}</p>
+                    <p className="text-slate-400 text-xs mt-1">{testimonial.date}</p>
+                  </div>
                 </div>
               </Link>
             ))}
@@ -534,6 +637,7 @@ export default function Home() {
 
             <Link
               to="/safety"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="inline-flex items-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 bg-green-600 text-white rounded-xl font-semibold hover:bg-green-700 transition-all text-sm sm:text-base"
             >
               Learn more about Safety
@@ -665,6 +769,7 @@ export default function Home() {
             </SignedOut>
             <Link
               to="/produce"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
               className="px-6 sm:px-8 py-3 sm:py-4 bg-green-800 text-white rounded-xl font-bold text-base sm:text-lg shadow-xl hover:shadow-2xl hover:bg-green-900 transition-all transform hover:scale-105"
             >
               Explore Market
@@ -742,6 +847,17 @@ export default function Home() {
         }
         .animate-fade-in-up {
           animation: fade-in-up 0.8s ease-out forwards;
+        }
+        @keyframes fade-in {
+          from {
+            opacity: 0;
+          }
+          to {
+            opacity: 1;
+          }
+        }
+        .animate-fade-in {
+          animation: fade-in 0.5s ease-in-out;
         }
         .animation-delay-300 {
           animation-delay: 0.3s;

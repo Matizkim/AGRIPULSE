@@ -276,13 +276,13 @@ export default function MatchesPage() {
           </label>
         </div>
 
-        <div className="space-y-4">
+        <div className="grid sm:grid-cols-1 lg:grid-cols-2 gap-4">
           {loading ? (
-            <div className="flex justify-center items-center py-12">
+            <div className="col-span-full flex justify-center items-center py-12">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
             </div>
           ) : matches.length === 0 ? (
-            <div className="bg-white p-8 rounded-xl shadow-md text-center">
+            <div className="col-span-full bg-white p-8 rounded-xl shadow-md text-center">
               <CheckBadgeIcon className="w-16 h-16 text-slate-300 mx-auto mb-4" />
               <p className="text-slate-500">No matches found. Create one to get started!</p>
             </div>
@@ -407,14 +407,23 @@ export default function MatchesPage() {
 
       {/* Driver Selection Modal */}
       {showDriverModal && selectedMatch && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="p-6 border-b border-slate-200 flex justify-between items-center sticky top-0 bg-white">
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-fade-in"
+          onClick={() => setShowDriverModal(false)}
+        >
+          <div 
+            className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto animate-scale-in transform"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6 border-b border-slate-200 flex justify-between items-center sticky top-0 bg-gradient-to-r from-blue-50 to-white z-10">
               <h3 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                <TruckIcon className="w-6 h-6" />
+                <TruckIcon className="w-6 h-6 text-blue-600" />
                 Select Transport Driver
               </h3>
-              <button onClick={() => setShowDriverModal(false)} className="text-slate-400 hover:text-slate-600">
+              <button 
+                onClick={() => setShowDriverModal(false)} 
+                className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full p-1.5 transition-all duration-200 hover:scale-110"
+              >
                 <XMarkIcon className="w-6 h-6" />
               </button>
             </div>
@@ -582,14 +591,23 @@ export default function MatchesPage() {
 
       {/* Rating Modal */}
       {showRatingModal && ratingMatch && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-2xl max-w-md w-full">
-            <div className="p-6 border-b border-slate-200 flex justify-between items-center">
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-fade-in"
+          onClick={() => setShowRatingModal(false)}
+        >
+          <div 
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-scale-in transform"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-6 border-b border-slate-200 flex justify-between items-center bg-gradient-to-r from-yellow-50 to-white">
               <h3 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-                <StarIcon className="w-6 h-6 text-yellow-500" />
+                <StarIcon className="w-6 h-6 text-yellow-500 animate-pulse" />
                 Rate This Transaction
               </h3>
-              <button onClick={() => setShowRatingModal(false)} className="text-slate-400 hover:text-slate-600">
+              <button 
+                onClick={() => setShowRatingModal(false)} 
+                className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full p-1.5 transition-all duration-200 hover:scale-110"
+              >
                 <XMarkIcon className="w-6 h-6" />
               </button>
             </div>

@@ -8,6 +8,7 @@ export default function MyDemandsPage() {
   const [demands, setDemands] = useState([]);
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState(null);
+  const [expandedCardId, setExpandedCardId] = useState(null);
 
   useEffect(() => {
     loadUser();
@@ -88,11 +89,24 @@ export default function MyDemandsPage() {
           <p className="text-slate-500">You haven't posted any demand listings yet.</p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {demands.map((demand) => (
-            <div key={demand._id} className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
-              <DemandCard item={demand} showActions={false} />
-              <div className="p-4 border-t border-slate-200">
+            <div 
+              key={demand._id} 
+              className={`bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden flex flex-col ${expandedCardId === demand._id ? 'sm:col-span-2 lg:col-span-3' : ''}`}
+            >
+              <div className="flex-1">
+                <DemandCard 
+                  item={demand} 
+                  showActions={false}
+                  isExpanded={expandedCardId === demand._id}
+                  onExpand={(cardId) => {
+                    // Only one card can be expanded at a time
+                    setExpandedCardId(cardId === expandedCardId ? null : cardId);
+                  }}
+                />
+              </div>
+              <div className="p-4 border-t border-slate-200 mt-auto">
                 <button
                   onClick={() => handleDelete(demand._id)}
                   className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"

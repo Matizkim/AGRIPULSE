@@ -12,6 +12,7 @@ export default function MyProducePage() {
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({});
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+  const [expandedCardId, setExpandedCardId] = useState(null);
   const { showToast } = useToast();
 
   useEffect(() => {
@@ -120,9 +121,12 @@ export default function MyProducePage() {
           <p className="text-slate-500">You haven't posted any produce listings yet.</p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-4">
           {listings.map((listing) => (
-            <div key={listing._id} className="bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden">
+            <div 
+              key={listing._id} 
+              className={`bg-white rounded-xl shadow-lg border border-slate-200 overflow-hidden flex flex-col ${expandedCardId === listing._id ? 'sm:col-span-2 lg:col-span-2 xl:col-span-3' : ''}`}
+            >
               {editingId === listing._id ? (
                 <div className="p-6">
                   <h3 className="text-lg font-semibold mb-4">Edit Listing</h3>
@@ -179,8 +183,18 @@ export default function MyProducePage() {
                 </div>
               ) : (
                 <>
-                  <ProduceCard item={listing} showActions={false} />
-                  <div className="p-4 border-t border-slate-200 flex gap-2">
+                  <div className="flex-1">
+                    <ProduceCard 
+                      item={listing} 
+                      showActions={false}
+                      isExpanded={expandedCardId === listing._id}
+                      onExpand={(cardId) => {
+                  // Only one card can be expanded at a time
+                  setExpandedCardId(cardId === expandedCardId ? null : cardId);
+                }}
+                    />
+                  </div>
+                  <div className="p-4 border-t border-slate-200 flex gap-2 mt-auto">
                     <button
                       onClick={() => handleEdit(listing)}
                       className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"

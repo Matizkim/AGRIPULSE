@@ -1,101 +1,156 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useUser } from "@clerk/clerk-react";
+import { useUser, useClerk } from "@clerk/clerk-react";
 import { getCurrentUser } from "../api/users";
 import OnboardingPage from "../pages/Onboarding";
 import PlanSelection from "../pages/PlanSelection";
+import OnboardingSuccess from "../pages/OnboardingSuccess";
 
 export default function RoleCheck({ children }) {
   const [checkingRole, setCheckingRole] = useState(true);
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
   const [needsPlanSelection, setNeedsPlanSelection] = useState(false);
+  const [needsSuccess, setNeedsSuccess] = useState(false);
   const { isSignedIn } = useUser();
+  const { signOut } = useClerk();
   const navigate = useNavigate();
   const location = useLocation();
+  const isCheckingRef = useRef(false);
+  const lastPathRef = useRef(location.pathname);
 
   useEffect(() => {
     if (isSignedIn) {
-      checkRole();
+      // Always check on mount or when path changes
+      if (location.pathname !== lastPathRef.current || !isCheckingRef.current) {
+        lastPathRef.current = location.pathname;
+        // Small delay to prevent rapid-fire checks during navigation
+        const timer = setTimeout(() => {
+          if (!isCheckingRef.current) {
+            checkRole();
+          }
+        }, 10); // Reduced delay for faster redirect
+        return () => clearTimeout(timer);
+      }
     } else {
       setCheckingRole(false);
     }
-  }, [isSignedIn]);
+  }, [isSignedIn, location.pathname]);
 
   const checkRole = async () => {
+    // Prevent multiple simultaneous checks
+    if (isCheckingRef.current) {
+      return;
+    }
+    
+    isCheckingRef.current = true;
+    
     try {
       const user = await getCurrentUser();
       
-      // FIRST: Check if user has selected a tier
-      // Plan selection happens BEFORE onboarding and BEFORE approval
-      if (!user || !user.tier) {
-        // No tier - must select plan first (unless already on plan selection page)
-        if (location.pathname !== "/plan-selection") {
-          if (location.pathname === "/") {
-            navigate("/plan-selection");
-          } else {
-            setNeedsPlanSelection(true);
-          }
-          setCheckingRole(false);
-          return;
+      // NEW FLOW: Details → Approval → Plan Selection → Success → Full Access
+      
+      // Define allowed pages during onboarding process
+      const allowedPages = ["/", "/onboarding", "/plan-selection", "/onboarding-success"];
+      const isAllowedPage = allowedPages.includes(location.pathname);
+      
+      // Handle rejected users first - allow them to resubmit
+      if (user.verificationStatus === "rejected") {
+        if (!isAllowedPage) {
+          navigate("/onboarding", { replace: true });
         }
-        // If already on plan selection, allow it
-        setCheckingRole(false);
-        return;
-      }
-      
-      // User has tier - check if they need onboarding
-      // Onboarding happens AFTER plan selection but BEFORE approval
-      if (!user.primaryRole || !user.roles || user.roles.length === 0) {
-        // No role - needs onboarding
         setNeedsOnboarding(true);
+        setNeedsPlanSelection(false);
         setCheckingRole(false);
+        isCheckingRef.current = false;
         return;
       }
       
-      if (!user.name || !user.phone || !user.location?.county) {
-        // Incomplete profile - needs onboarding
+      // STEP 1: Check if user has filled personal details (onboarding)
+      if (!user.primaryRole || !user.roles || user.roles.length === 0 || 
+          !user.name || !user.phone || !user.location?.county) {
+        // Incomplete profile - needs onboarding (fill details first)
+        // Always redirect to onboarding, even from home page
+        if (location.pathname !== "/onboarding") {
+          navigate("/onboarding", { replace: true });
+        }
         setNeedsOnboarding(true);
+        setNeedsPlanSelection(false);
         setCheckingRole(false);
+        isCheckingRef.current = false;
         return;
       }
       
-      if (!user.legalDetails?.nationalId || !user.legalDetails?.nationalIdImage) {
-        // No legal details - needs onboarding
-        setNeedsOnboarding(true);
-        setCheckingRole(false);
-        return;
-      }
-      
-      // User has tier and completed onboarding - check verification status
-      if (user.verificationStatus === "rejected" && location.pathname !== "/onboarding") {
-        // Rejected - show verification status page
-        navigate("/verification-status");
-        setCheckingRole(false);
-        return;
-      }
-      
+      // STEP 2: Check if user is approved
       if (!user.isVerified || user.verificationStatus !== "approved") {
-        // Pending verification - show waiting screen in onboarding
-        setNeedsOnboarding(true);
+        // Not approved yet - show waiting screen in onboarding
+        // Always redirect to onboarding, even from home page
+        if (location.pathname !== "/onboarding" && location.pathname !== "/plan-selection") {
+          navigate("/onboarding", { replace: true });
+        }
+        // Only show onboarding if we're not already on plan-selection
+        if (location.pathname !== "/plan-selection") {
+          setNeedsOnboarding(true);
+        }
+        // Clear plan selection flag to prevent conflicts
+        setNeedsPlanSelection(false);
         setCheckingRole(false);
+        isCheckingRef.current = false;
         return;
       }
       
-      // User is fully verified and approved - allow access
+      // User is approved - clear onboarding flag immediately
+      setNeedsOnboarding(false);
+      
+      // STEP 3: User is approved - check if they have selected a plan
+      if (!user || !user.tier) {
+        // No tier - must select plan after approval
+        // IMPORTANT: Clear needsOnboarding to prevent Onboarding from rendering
+        setNeedsOnboarding(false);
+        
+        // Only redirect if we're NOT already on plan-selection
+        // This prevents redirect loops
+        if (location.pathname !== "/plan-selection") {
+          navigate("/plan-selection", { replace: true });
+        }
+        
+        // Set plan selection flag (whether we redirected or not)
+        setNeedsPlanSelection(true);
+        setCheckingRole(false);
+        isCheckingRef.current = false;
+        return;
+      }
+      
+      // STEP 4: User has tier and is approved - fully onboarded
+      // Clear all onboarding flags
+      setNeedsOnboarding(false);
+      setNeedsPlanSelection(false);
+      
+      // If they're on onboarding/plan-selection pages, redirect to role-specific page
+      if (location.pathname === "/onboarding" || location.pathname === "/plan-selection") {
+        // Redirect to role-specific page
+        const roleRoute = user.primaryRole === "farmer" ? "/produce" 
+                        : user.primaryRole === "buyer" ? "/demand"
+                        : user.primaryRole === "driver" ? "/transport"
+                        : "/";
+        navigate(roleRoute, { replace: true });
+      }
+      
+      // User is fully verified, approved, and has selected plan - allow access
       setCheckingRole(false);
+      isCheckingRef.current = false;
     } catch (err) {
       console.error("Error checking role:", err);
-      // If error fetching user (e.g., 500 error), redirect to plan selection
-      // This ensures new users always go through plan selection first
-      // Plan selection will handle creating/updating the user
-      if (location.pathname !== "/plan-selection") {
-        if (location.pathname === "/") {
-          navigate("/plan-selection");
-        } else {
-          setNeedsPlanSelection(true);
-        }
+      
+      // If error fetching user (e.g., user doesn't exist yet, 404, or 500 error)
+      // This handles Clerk sign-in for users who haven't signed up yet
+      // Always redirect to onboarding, even from home page
+      if (location.pathname !== "/onboarding") {
+        navigate("/onboarding", { replace: true });
       }
+      setNeedsOnboarding(true);
+      setNeedsPlanSelection(false);
       setCheckingRole(false);
+      isCheckingRef.current = false;
     }
   };
 
@@ -113,6 +168,10 @@ export default function RoleCheck({ children }) {
 
   if (needsOnboarding) {
     return <OnboardingPage />;
+  }
+
+  if (needsSuccess) {
+    return <OnboardingSuccess />;
   }
 
   return <>{children}</>;

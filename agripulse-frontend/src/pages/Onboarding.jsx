@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useRef } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { updateUser, getCurrentUser } from "../api/users";
 import { UserIcon, CheckCircleIcon, IdentificationIcon, MapPinIcon, PhoneIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
@@ -23,27 +23,55 @@ export default function OnboardingPage() {
   const [user, setUser] = useState(null);
   const [isResubmission, setIsResubmission] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { user: clerkUser } = useUser();
+  const isRedirectingRef = useRef(false);
 
   useEffect(() => {
-    loadUser();
-  }, []);
+    let pollInterval = null;
+    
+    const initialize = async () => {
+      const userData = await loadUser();
+      
+      // If user is approved, don't start polling - RoleCheck will handle redirect
+      if (userData && userData.isVerified && userData.verificationStatus === "approved") {
+        return; // Don't poll, RoleCheck will handle it
+      }
+      
+      // Only start polling if user is pending (not approved yet) and we're on onboarding page
+      if (userData && userData.verificationStatus === "pending" && !userData.isVerified && location.pathname === "/onboarding") {
+        pollInterval = setInterval(async () => {
+          try {
+            const data = await getCurrentUser();
+            // If user gets approved, stop polling - RoleCheck will handle redirect
+            if (data.isVerified && data.verificationStatus === "approved") {
+              if (pollInterval) clearInterval(pollInterval);
+              // Don't navigate here - let RoleCheck handle it
+            }
+          } catch (err) {
+            console.error("Error polling user status:", err);
+          }
+        }, 5000); // Check every 5 seconds
+      }
+    };
+    
+    initialize();
+    
+    return () => {
+      if (pollInterval) clearInterval(pollInterval);
+    };
+  }, [navigate, location.pathname]);
 
   const loadUser = async () => {
     try {
       const data = await getCurrentUser();
       setUser(data);
       
-      // If user doesn't have a tier, redirect to plan selection
-      if (!data.tier) {
-        navigate("/plan-selection");
-        return;
-      }
-      
-      // If user is verified and approved, redirect to verification status page
-      if (data.isVerified && data.verificationStatus === "approved" && data.primaryRole) {
-        navigate("/verification-status");
-        return;
+      // If user is approved (with or without tier), don't set any step
+      // Let RoleCheck handle all routing for approved users
+      if (data.isVerified && data.verificationStatus === "approved") {
+        // Don't interfere - RoleCheck will handle redirect
+        return data;
       }
       
       // ALWAYS start from step 1 (role selection) - even for retries
@@ -56,20 +84,27 @@ export default function OnboardingPage() {
       // If user was rejected, always start from step 1 to allow resubmission
       if (data.verificationStatus === "rejected") {
         setStep(1);
-        return;
+        return data;
       }
       
       // If user has everything but is pending (not rejected) - show waiting screen
-      if (data.primaryRole && data.name && data.phone && data.location?.county && 
-          data.legalDetails?.nationalId && data.legalDetails?.nationalIdImage &&
-          data.verificationStatus === "pending") {
-        setStep(4);
+      // National ID is optional, so we don't require it for waiting screen
+      if (data.primaryRole && data.name && data.phone && data.location?.county) {
+        if (data.verificationStatus === "pending") {
+          setStep(4); // Show waiting for approval
+        } else {
+          // Start from step 1 for any other status
+          setStep(1);
+        }
       } else {
-        // Always start from step 1
+        // Always start from step 1 if profile incomplete
         setStep(1);
       }
+      
+      return data;
     } catch (err) {
       console.error("Error loading user:", err);
+      return null;
     }
   };
 
@@ -118,10 +153,7 @@ export default function OnboardingPage() {
       alert("Please complete your profile information");
       return;
     }
-    if (!legalDetails.nationalId || !legalDetails.nationalIdImage) {
-      alert("Please provide your National ID number and upload an image");
-      return;
-    }
+    // National ID is optional now
 
     setLoading(true);
     try {
@@ -141,8 +173,8 @@ export default function OnboardingPage() {
         phone: profileData.phone.trim(),
         location: locationData,
         legalDetails: {
-          nationalId: legalDetails.nationalId.trim(),
-          nationalIdImage: legalDetails.nationalIdImage
+          ...(legalDetails.nationalId && { nationalId: legalDetails.nationalId.trim() }),
+          ...(legalDetails.nationalIdImage && { nationalIdImage: legalDetails.nationalIdImage })
         }
       };
       
@@ -165,10 +197,11 @@ export default function OnboardingPage() {
       // Check if this is a resubmission (retry)
       const isRetry = updatedUser.verificationRetryCount > 0;
       
-      if (updatedUser.legalDetails?.nationalId && updatedUser.legalDetails?.nationalIdImage) {
-        // Show success animation for both first-time and resubmissions
-        setIsResubmission(isRetry);
-        setStep(5); // Show success animation
+      // If user has completed profile (name, phone, location, role), show waiting screen
+      // After admin approval, they'll be redirected to plan selection
+      if (updatedUser.primaryRole && updatedUser.name && updatedUser.phone && updatedUser.location?.county) {
+        // Show waiting screen - user is pending approval
+        setStep(4); // Show waiting screen
       } else {
         setStep(4); // Show waiting screen
       }
@@ -201,6 +234,12 @@ export default function OnboardingPage() {
     { value: "buyer", label: "Buyer", description: "Find produce and create demand listings" },
     { value: "driver", label: "Transport Provider", description: "Offer transport services for deliveries" }
   ];
+
+  // CRITICAL: If user is approved, don't render Onboarding at all - let RoleCheck handle routing
+  // This prevents blinking and step resets
+  if (user && user.isVerified && user.verificationStatus === "approved") {
+    return null; // RoleCheck will handle redirect to plan-selection or role-specific page
+  }
 
   // Step 5: Success Animation (for both first-time and resubmissions)
   if (step === 5) {
@@ -277,7 +316,13 @@ export default function OnboardingPage() {
   }
 
   // Step 4: Waiting for verification
+  // BUT: If user is approved, don't show waiting screen - let RoleCheck handle redirect
   if (step === 4) {
+    // If user is approved, don't render Onboarding at all - RoleCheck will handle it
+    if (user && user.isVerified && user.verificationStatus === "approved") {
+      return null; // Let RoleCheck handle routing - don't render anything
+    }
+    
     const isRetry = user?.verificationRetryCount > 0;
     
     return (
@@ -486,25 +531,23 @@ export default function OnboardingPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">National ID Number *</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">National ID Number (Optional)</label>
                 <input
                   type="text"
                   value={legalDetails.nationalId}
                   onChange={(e) => setLegalDetails({...legalDetails, nationalId: e.target.value})}
                   className="w-full border-2 border-slate-200 rounded-lg px-4 py-2.5 focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all"
-                  placeholder="Enter your National ID number"
-                  required
+                  placeholder="Enter your National ID number (optional)"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-slate-700 mb-1.5">National ID Image *</label>
+                <label className="block text-sm font-semibold text-slate-700 mb-1.5">National ID Image (Optional)</label>
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
                   className="w-full border-2 border-slate-200 rounded-lg px-4 py-2.5 focus:border-green-500 focus:ring-2 focus:ring-green-200 outline-none transition-all"
-                  required
                 />
                 {legalDetails.nationalIdImagePreview && (
                   <div className="mt-3">

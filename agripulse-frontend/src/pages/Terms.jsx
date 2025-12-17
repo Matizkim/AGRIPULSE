@@ -4,7 +4,7 @@ import { DocumentTextIcon, ArrowLeftIcon } from "@heroicons/react/24/outline";
 
 export default function Terms() {
   return (
-    <div className="max-w-4xl mx-auto space-y-8">
+    <div className="max-w-4xl mx-auto space-y-8 pt-24 md:pt-20">
       {/* Header */}
       <div className="text-center mb-12">
         <div className="inline-flex items-center justify-center w-20 h-20 bg-blue-100 rounded-full mb-6">
@@ -137,9 +137,9 @@ export default function Terms() {
             If you have questions about these terms, please contact us:
           </p>
           <div className="space-y-2 text-sm">
-            <p><strong>Email:</strong> <a href="mailto:kinyuam047@gmail.com" className="text-green-600 hover:text-green-700">kinyuam047@gmail.com</a></p>
+            <p><strong>Email:</strong> <a href="mailto:Agripulseltd@gmail.com" className="text-green-600 hover:text-green-700">Agripulseltd@gmail.com</a></p>
             <p><strong>Phone:</strong> <a href="tel:+254708244593" className="text-green-600 hover:text-green-700">+254 708 244 593</a></p>
-            <p><strong>Address:</strong> 62000, Nairobi, Kenya</p>
+            <p><strong>Address:</strong> 62000-00200 Nairobi</p>
           </div>
         </section>
       </div>

@@ -34,3 +34,8 @@ export const getSuggestedDrivers = async (matchId) => {
   return res.data;
 };
 
+export const incrementTransportViews = async (transportId) => {
+  const res = await API.post(`/transport/${transportId}/views`);
+  return res.data;
+};
+

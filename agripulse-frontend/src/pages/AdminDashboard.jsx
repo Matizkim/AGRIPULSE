@@ -329,30 +329,27 @@ export default function AdminDashboard() {
       {/* ID Image Modal */}
       {viewingIdImage && (
         <div 
-          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
+          className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4 animate-fade-in"
           onClick={() => setViewingIdImage(null)}
         >
           <div 
-            className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-auto"
+            className="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto animate-scale-in transform p-6"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="p-4 border-b border-slate-200 flex justify-between items-center sticky top-0 bg-white">
-              <h3 className="text-lg font-bold text-slate-800">National ID Image</h3>
-              <button
-                onClick={() => setViewingIdImage(null)}
-                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-2xl font-bold text-slate-800">National ID Image</h3>
+              <button 
+                onClick={() => setViewingIdImage(null)} 
+                className="text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full p-1.5 transition-all duration-200 hover:scale-110"
               >
-                <XCircleIcon className="w-6 h-6 text-slate-600" />
+                <XCircleIcon className="w-6 h-6" />
               </button>
             </div>
-            <div className="p-6">
-              <img 
-                src={viewingIdImage} 
-                alt="National ID"
-                className="w-full h-auto rounded-lg border border-slate-200"
-                style={{ maxHeight: "70vh", objectFit: "contain" }}
-              />
-            </div>
+            <img 
+              src={viewingIdImage} 
+              alt="National ID" 
+              className="w-full h-auto rounded-lg shadow-lg"
+            />
           </div>
         </div>
       )}

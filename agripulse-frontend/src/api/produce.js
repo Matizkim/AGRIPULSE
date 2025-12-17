@@ -24,6 +24,17 @@ export const getProduceListing = async (listingId) => {
   return res.data;
 };
 
+// Increment views for a listing
+export const incrementListingViews = async (listingId) => {
+  try {
+    // The backend already increments views when fetching, but we can also call it explicitly
+    await API.get(`/produce/${listingId}`);
+  } catch (err) {
+    // Silently fail - views increment is not critical
+    console.error("Error incrementing views:", err);
+  }
+};
+
 // Create listing (authenticated)
 export const createProduceListing = async (listingData) => {
   const res = await API.post("/produce", listingData);

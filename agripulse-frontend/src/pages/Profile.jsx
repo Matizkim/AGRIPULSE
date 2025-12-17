@@ -2,12 +2,17 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getCurrentUser, updateUser } from "../api/users";
 import { getUserReviews } from "../api/reviews";
+import { fetchProduce } from "../api/produce";
+import { fetchDemands } from "../api/demand";
 import useAuthFetch from "../hooks/useAuthFetch";
-import { UserIcon, StarIcon, CheckBadgeIcon, XCircleIcon, ClockIcon, SparklesIcon, ArrowRightIcon } from "@heroicons/react/24/outline";
+import { UserIcon, StarIcon, CheckBadgeIcon, XCircleIcon, ClockIcon, SparklesIcon, ArrowRightIcon, ShoppingBagIcon, ClipboardDocumentListIcon } from "@heroicons/react/24/outline";
 import { CheckBadgeIcon as CheckBadgeIconSolid, CheckCircleIcon as CheckCircleIconSolid } from "@heroicons/react/24/solid";
 import { StarIcon as StarIconSolid } from "@heroicons/react/24/solid";
 import Modal from "../components/Modal";
+import SubscriptionModal from "../components/SubscriptionModal";
 import { useToast } from "../contexts/ToastContext";
+import ProduceCard from "../components/ProduceCard";
+import DemandCard from "../components/DemandCard";
 
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
@@ -17,6 +22,10 @@ export default function ProfilePage() {
   const [form, setForm] = useState({});
   const [showComingSoon, setShowComingSoon] = useState(false);
   const [comingSoonTier, setComingSoonTier] = useState("");
+  const [myProducts, setMyProducts] = useState([]);
+  const [myDemands, setMyDemands] = useState([]);
+  const [loadingProducts, setLoadingProducts] = useState(false);
+  const [loadingDemands, setLoadingDemands] = useState(false);
   const authFetch = useAuthFetch();
   const { showToast } = useToast();
 
@@ -24,6 +33,17 @@ export default function ProfilePage() {
     loadProfile();
     loadReviews();
   }, []);
+
+  useEffect(() => {
+    if (user?._id) {
+      if (user.roles?.includes("farmer") || user.primaryRole === "farmer") {
+        loadMyProducts();
+      }
+      if (user.roles?.includes("buyer") || user.primaryRole === "buyer") {
+        loadMyDemands();
+      }
+    }
+  }, [user?._id, user?.roles, user?.primaryRole]);
 
   const loadProfile = async () => {
     setLoading(true);
@@ -70,6 +90,38 @@ export default function ProfilePage() {
       }
     } catch(err) {
       console.error(err);
+    }
+  };
+
+  const loadMyProducts = async () => {
+    setLoadingProducts(true);
+    try {
+      const data = await fetchProduce({ farmerId: user._id });
+      if (data.listings) {
+        setMyProducts(data.listings);
+      } else if (Array.isArray(data)) {
+        setMyProducts(data);
+      }
+    } catch(err) {
+      console.error("Error loading products:", err);
+    } finally {
+      setLoadingProducts(false);
+    }
+  };
+
+  const loadMyDemands = async () => {
+    setLoadingDemands(true);
+    try {
+      const data = await fetchDemands({ buyerId: user._id });
+      if (data.demands) {
+        setMyDemands(data.demands);
+      } else if (Array.isArray(data)) {
+        setMyDemands(data);
+      }
+    } catch(err) {
+      console.error("Error loading demands:", err);
+    } finally {
+      setLoadingDemands(false);
     }
   };
 
@@ -159,7 +211,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto pt-20 md:pt-0">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <div className="p-2 bg-green-100 rounded-lg">
@@ -179,7 +231,15 @@ export default function ProfilePage() {
         {/* Profile Info */}
         <div className="bg-white p-6 rounded-xl shadow-lg">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold text-slate-800">Profile Information</h3>
+            <div className="flex items-center gap-3">
+              <h3 className="text-xl font-bold text-slate-800">Profile Information</h3>
+              {user.isVerified && user.verificationStatus === "approved" && (
+                <div className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full shadow-md">
+                  <CheckBadgeIconSolid className="w-4 h-4" />
+                  <span className="font-bold text-xs">Verified</span>
+                </div>
+              )}
+            </div>
             <button
               onClick={() => {
                 if (editing) {
@@ -447,12 +507,18 @@ export default function ProfilePage() {
                     ))}
                   </ul>
                   <button
-                    onClick={() => {
+                    type="button"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
                       if (user.tier === plan.tier) {
                         return; // Already subscribed
                       }
-                      setComingSoonTier(plan.name);
-                      setShowComingSoon(true);
+                      // Use setTimeout to ensure state updates properly
+                      setTimeout(() => {
+                        setComingSoonTier(plan.name);
+                        setShowComingSoon(true);
+                      }, 0);
                     }}
                     disabled={user.tier === plan.tier}
                     className={`w-full px-4 py-2 rounded-lg font-semibold text-sm transition-all ${
@@ -480,36 +546,78 @@ export default function ProfilePage() {
         </div>
       </div>
 
-      {/* Coming Soon Modal */}
-      <Modal
-        isOpen={showComingSoon}
-        onClose={() => setShowComingSoon(false)}
-        title={`${comingSoonTier} - Coming Soon!`}
-      >
-        <div className="text-center">
-          <div className="mb-6 flex justify-center">
-            <div className="relative">
-              <div className="absolute inset-0 bg-amber-400 rounded-full animate-ping opacity-75"></div>
-              <div className="relative bg-amber-500 rounded-full p-6 animate-bounce">
-                <SparklesIcon className="w-16 h-16 text-white" />
-              </div>
+      {/* My Products/Demands Section */}
+      {(user.roles?.includes("farmer") || user.primaryRole === "farmer") && (
+        <div className="mt-6 bg-white p-6 rounded-xl shadow-lg">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <ShoppingBagIcon className="w-6 h-6 text-green-600" />
+              <h3 className="text-xl font-bold text-slate-800">My Products</h3>
             </div>
+            <Link
+              to="/my-produce"
+              className="text-sm text-green-600 hover:text-green-700 font-semibold flex items-center gap-1"
+            >
+              View All
+              <ArrowRightIcon className="w-4 h-4" />
+            </Link>
           </div>
-          <h3 className="text-2xl font-bold text-slate-900 mb-4">Premium Plans Coming Soon!</h3>
-          <p className="text-slate-600 mb-6">
-            We're working hard to bring you {comingSoonTier} features. Premium payment processing and advanced features will be available soon!
-          </p>
-          <p className="text-sm text-slate-500 mb-6">
-            You'll be notified as soon as premium features are available for upgrade.
-          </p>
-          <button
-            onClick={() => setShowComingSoon(false)}
-            className="px-6 py-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-xl font-semibold hover:from-amber-700 hover:to-orange-700 transition-all"
-          >
-            Got it!
-          </button>
+          {loadingProducts ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
+            </div>
+          ) : myProducts.length === 0 ? (
+            <p className="text-slate-500 text-sm">No products posted yet. <Link to="/produce" className="text-green-600 hover:text-green-700">Post your first product</Link></p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {myProducts.slice(0, 6).map(product => (
+                <ProduceCard key={product._id} item={product} showActions={false} />
+              ))}
+            </div>
+          )}
         </div>
-      </Modal>
+      )}
+
+      {(user.roles?.includes("buyer") || user.primaryRole === "buyer") && (
+        <div className="mt-6 bg-white p-6 rounded-xl shadow-lg">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <ClipboardDocumentListIcon className="w-6 h-6 text-emerald-600" />
+              <h3 className="text-xl font-bold text-slate-800">My Demands</h3>
+            </div>
+            <Link
+              to="/my-demands"
+              className="text-sm text-emerald-600 hover:text-emerald-700 font-semibold flex items-center gap-1"
+            >
+              View All
+              <ArrowRightIcon className="w-4 h-4" />
+            </Link>
+          </div>
+          {loadingDemands ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+            </div>
+          ) : myDemands.length === 0 ? (
+            <p className="text-slate-500 text-sm">No demands posted yet. <Link to="/demand" className="text-emerald-600 hover:text-emerald-700">Post your first demand</Link></p>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {myDemands.slice(0, 6).map(demand => (
+                <DemandCard key={demand._id} item={demand} showActions={false} />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Coming Soon Modal - Enhanced Animated Version */}
+      <SubscriptionModal
+        isOpen={showComingSoon}
+        onClose={() => {
+          setShowComingSoon(false);
+          setComingSoonTier("");
+        }}
+        tierName={comingSoonTier}
+      />
     </div>
   );
 }

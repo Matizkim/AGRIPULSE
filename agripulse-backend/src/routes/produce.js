@@ -211,57 +211,20 @@ router.put(
         return res.status(403).json({ error: "Not authorized to update this listing" });
       }
 
-      // If admin, update directly
-      const isAdmin = req.localUser.roles?.includes("admin");
-      
-      if (isAdmin) {
-        // Admin can update directly
-        const allowedUpdates = [
-          "crop", "category", "quantityKg", "harvestDate", "readyDate",
-          "expectedPrice", "isPriceNegotiable", "location", "images", "visibility"
-        ];
-        
-        allowedUpdates.forEach(field => {
-          if (req.body[field] !== undefined) {
-            listing[field] = req.body[field];
-          }
-        });
-
-        await listing.save();
-        return res.json(listing);
-      }
-
-      // For regular farmers, create pending edit request
-      const changes = {};
+      // Update directly without admin approval (same as demand route)
       const allowedUpdates = [
         "crop", "category", "quantityKg", "harvestDate", "readyDate",
         "expectedPrice", "isPriceNegotiable", "location", "images", "visibility"
       ];
       
       allowedUpdates.forEach(field => {
-        if (req.body[field] !== undefined && req.body[field] !== listing[field]) {
-          changes[field] = req.body[field];
+        if (req.body[field] !== undefined) {
+          listing[field] = req.body[field];
         }
       });
 
-      if (Object.keys(changes).length === 0) {
-        return res.status(400).json({ error: "No changes detected" });
-      }
-
-      // Create pending edit request
-      listing.pendingEdit = {
-        changes,
-        requestedAt: new Date(),
-        requestedBy: req.localUser._id,
-        status: "pending"
-      };
-
       await listing.save();
-      res.json({ 
-        message: "Edit request submitted. Waiting for admin approval.",
-        listing,
-        pendingEdit: listing.pendingEdit
-      });
+      res.json(listing);
     } catch (err) {
       console.error("Error updating listing:", err);
       res.status(500).json({ error: "Could not update listing" });

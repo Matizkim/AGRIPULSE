@@ -24,6 +24,17 @@ export const getDemand = async (demandId) => {
   return res.data;
 };
 
+// Increment views for a demand
+export const incrementDemandViews = async (demandId) => {
+  try {
+    // The backend already increments views when fetching, but we can also call it explicitly
+    await API.get(`/demand/${demandId}`);
+  } catch (err) {
+    // Silently fail - views increment is not critical
+    console.error("Error incrementing views:", err);
+  }
+};
+
 // Create demand (authenticated)
 export const createDemand = async (demandData) => {
   const res = await API.post("/demand", demandData);
