@@ -38,6 +38,13 @@ export default function Home() {
         try {
           const user = await getCurrentUser();
           
+          // If user is an admin, don't force them through the normal onboarding flow
+          // Admins may be created/approved differently and can get stuck in a loop
+          const isAdmin = user?.roles?.includes("admin") || user?.primaryRole === "admin";
+          if (isAdmin) {
+            return;
+          }
+
           // If user hasn't completed onboarding, redirect immediately
           if (!user || !user.primaryRole || !user.roles || user.roles.length === 0 || 
               !user.name || !user.phone || !user.location?.county) {

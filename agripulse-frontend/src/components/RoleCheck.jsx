@@ -47,6 +47,23 @@ export default function RoleCheck({ children }) {
     try {
       const user = await getCurrentUser();
       
+      // 🔐 Admin shortcut:
+      // If this user is an admin, skip the normal onboarding/verification flow
+      // so they don't get stuck in the "enter personal details" loop.
+      const isAdmin = user?.roles?.includes("admin") || user?.primaryRole === "admin";
+      if (isAdmin) {
+        setNeedsOnboarding(false);
+        setNeedsPlanSelection(false);
+        setCheckingRole(false);
+        isCheckingRef.current = false;
+
+        // Always send admins to the admin dashboard unless they're already there
+        if (!location.pathname.startsWith("/admin")) {
+          navigate("/admin", { replace: true });
+        }
+        return;
+      }
+      
       // NEW FLOW: Details → Approval → Plan Selection → Success → Full Access
       
       // Define allowed pages during onboarding process
