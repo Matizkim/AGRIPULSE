@@ -24,7 +24,7 @@ import Terms from "./pages/Terms";
 import Contact from "./pages/Contact";
 import PlanSelection from "./pages/PlanSelection";
 import OnboardingSuccess from "./pages/OnboardingSuccess";
-import { SignedIn, SignedOut, RedirectToSignIn, useUser } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, RedirectToSignIn, useUser, useAuth } from "@clerk/clerk-react";
 import RoleCheck from "./components/RoleCheck";
 import { getCurrentUser } from "./api/users";
 
@@ -44,6 +44,7 @@ function Protected({ children }) {
 function AppContent() {
   const location = useLocation();
   const { isSignedIn } = useUser();
+  const { isLoaded: authLoaded, getToken } = useAuth();
   const [showHeaderFooter, setShowHeaderFooter] = useState(true);
   const [checking, setChecking] = useState(true);
 
@@ -71,8 +72,16 @@ function AppContent() {
       }
 
       // For signed-in users, check if they are fully onboarded (approved AND has tier)
-      if (isSignedIn) {
+      if (isSignedIn && authLoaded) {
         try {
+          const token = await getToken();
+          if (!token) {
+            // Token not ready yet; keep header/footer hidden for now, but don't mis-route.
+            setShowHeaderFooter(false);
+            setChecking(false);
+            return;
+          }
+
           const user = await getCurrentUser();
           // Show header/footer ONLY if user is approved AND has selected a tier
           if (user && 
@@ -100,7 +109,7 @@ function AppContent() {
     };
 
     checkUserStatus();
-  }, [location.pathname, isSignedIn]);
+  }, [location.pathname, isSignedIn, authLoaded, getToken]);
 
   // Don't render until we've checked
   if (checking) {

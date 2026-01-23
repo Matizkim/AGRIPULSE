@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { SignedIn, SignedOut, SignUpButton, useUser } from "@clerk/clerk-react";
+import { SignedIn, SignedOut, SignUpButton, useUser, useAuth } from "@clerk/clerk-react";
 import { fetchDemands } from "../api/demand";
 import { getCurrentUser } from "../api/users";
 import {
@@ -23,6 +23,7 @@ export default function Home() {
   const [userTier, setUserTier] = useState(null);
   const navigate = useNavigate();
   const { isSignedIn } = useUser();
+  const { isLoaded: authLoaded, getToken } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
@@ -34,8 +35,14 @@ export default function Home() {
   // Since Home is not protected, we need to check and redirect here
   useEffect(() => {
     const checkUserStatus = async () => {
-      if (isSignedIn) {
+      if (isSignedIn && authLoaded) {
         try {
+          const token = await getToken();
+          if (!token) {
+            // Token not ready yet; don't redirect to onboarding and create loops.
+            return;
+          }
+
           const user = await getCurrentUser();
           
           // If user is an admin, don't force them through the normal onboarding flow
@@ -71,7 +78,9 @@ export default function Home() {
         } catch (err) {
           // If error fetching user (e.g., user doesn't exist), redirect to onboarding
           console.error("Error checking user status:", err);
-          navigate("/onboarding", { replace: true });
+          if (err?.response?.status !== 401) {
+            navigate("/onboarding", { replace: true });
+          }
         }
       }
     };
@@ -80,7 +89,7 @@ export default function Home() {
       checkUserStatus();
     }, 100);
     return () => clearTimeout(timer);
-  }, [isSignedIn, navigate]);
+  }, [isSignedIn, authLoaded, navigate, getToken]);
 
   // Fetch recent demands for "What Buyers Want Now" section
   useEffect(() => {

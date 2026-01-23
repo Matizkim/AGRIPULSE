@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useUser, useClerk } from "@clerk/clerk-react";
+import { useUser, useClerk, useAuth } from "@clerk/clerk-react";
 import { getCurrentUser } from "../api/users";
 import OnboardingPage from "../pages/Onboarding";
 import PlanSelection from "../pages/PlanSelection";
@@ -12,6 +12,7 @@ export default function RoleCheck({ children }) {
   const [needsPlanSelection, setNeedsPlanSelection] = useState(false);
   const [needsSuccess, setNeedsSuccess] = useState(false);
   const { isSignedIn } = useUser();
+  const { isLoaded: authLoaded, getToken } = useAuth();
   const { signOut } = useClerk();
   const navigate = useNavigate();
   const location = useLocation();
@@ -19,7 +20,7 @@ export default function RoleCheck({ children }) {
   const lastPathRef = useRef(location.pathname);
 
   useEffect(() => {
-    if (isSignedIn) {
+    if (isSignedIn && authLoaded) {
       // Always check on mount or when path changes
       if (location.pathname !== lastPathRef.current || !isCheckingRef.current) {
         lastPathRef.current = location.pathname;
@@ -32,9 +33,12 @@ export default function RoleCheck({ children }) {
         return () => clearTimeout(timer);
       }
     } else {
-      setCheckingRole(false);
+      // If signed in but auth isn't loaded yet, keep spinner (don't mis-route)
+      if (!isSignedIn) {
+        setCheckingRole(false);
+      }
     }
-  }, [isSignedIn, location.pathname]);
+  }, [isSignedIn, authLoaded, location.pathname]);
 
   const checkRole = async () => {
     // Prevent multiple simultaneous checks
@@ -45,6 +49,19 @@ export default function RoleCheck({ children }) {
     isCheckingRef.current = true;
     
     try {
+      // Ensure we actually have a Clerk token before hitting /users/me.
+      // Without a token, the backend may map this request to a "dev-session" user,
+      // which causes the onboarding loop (new/incomplete user on refresh).
+      const token = await getToken();
+      if (!token) {
+        isCheckingRef.current = false;
+        // Retry shortly instead of redirecting to onboarding.
+        setTimeout(() => {
+          if (!isCheckingRef.current) checkRole();
+        }, 200);
+        return;
+      }
+
       const user = await getCurrentUser();
       
       // 🔐 Admin shortcut:
@@ -158,9 +175,17 @@ export default function RoleCheck({ children }) {
     } catch (err) {
       console.error("Error checking role:", err);
       
-      // If error fetching user (e.g., user doesn't exist yet, 404, or 500 error)
-      // This handles Clerk sign-in for users who haven't signed up yet
-      // Always redirect to onboarding, even from home page
+      // If we get a 401 here, it's usually because token/auth isn't ready yet.
+      // Retry briefly instead of forcing onboarding (prevents redirect loops).
+      if (err?.response?.status === 401) {
+        isCheckingRef.current = false;
+        setTimeout(() => {
+          if (!isCheckingRef.current) checkRole();
+        }, 300);
+        return;
+      }
+
+      // For other errors, fall back to onboarding
       if (location.pathname !== "/onboarding") {
         navigate("/onboarding", { replace: true });
       }
